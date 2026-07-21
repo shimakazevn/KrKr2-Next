@@ -1,13 +1,17 @@
 #include "XP3ArchiveRepack.h"
 #include <map>
 #include <functional>
+#if !defined(TVP_NO_7ZIP)
 #include <7zip/Archive/7z/7zOut.h>
 #include <7zip/Common/StreamObjects.h>
+#endif
 #include "tjsDictionary.h"
 
+#if !defined(TVP_NO_7ZIP)
 extern "C" {
 #include <7zCrc.h>
 }
+#endif
 #include "TextStream.h"
 #include "StorageImpl.h"
 #include "XP3Archive.h"
@@ -26,7 +30,9 @@ extern "C" {
 #endif
 
 using namespace TJS;
+#if !defined(TVP_NO_7ZIP)
 using namespace NArchive::N7z;
+#endif
 
 #if defined(__APPLE__) || defined(__MACH__) || defined(__FreeBSD__)
 #define lseek64 lseek
