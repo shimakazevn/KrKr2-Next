@@ -403,6 +403,10 @@ else()
     target_sources(7zip PRIVATE C/XzCrc64Opt.c)
 endif()
 
+if(APPLE)
+    target_compile_options(7zip PRIVATE -march=armv8-a+crc)
+endif()
+
 target_compile_definitions(7zip
     PUBLIC
         -D_REENTRANT
@@ -410,6 +414,7 @@ target_compile_definitions(7zip
         -D_LARGEFILE_SOURCE
         -DEXTERNAL_CODECS
         -D_7ZIP_BUILD_NO_ARM_CRC
+        -D__ARM_FEATURE_CRC32=0
         -DUNICODE
         -D_UNICODE
 )
