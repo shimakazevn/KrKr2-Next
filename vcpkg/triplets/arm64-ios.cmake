@@ -10,9 +10,9 @@ set(VCPKG_OSX_ARCHITECTURES arm64)
 # causing configure to think it's not cross-compiling and try to run iOS binaries.
 set(VCPKG_MAKE_BUILD_TRIPLET "--host=aarch64-apple-ios")
 
-# Fix 7zip 7zCrc.c build failure on Apple Clang iOS:
-# Apple Clang defines __ARM_ACLE which triggers inclusion of arm_acle.h,
-# which uses __builtin_arm_crc32b requiring target feature 'crc'.
-# Setting __ARM_ACLE=0 prevents this include so 7zip uses pure C CRC code.
-set(VCPKG_C_FLAGS "-D__ARM_ACLE=0 -D__ARM_FEATURE_CRC32=0")
-set(VCPKG_CXX_FLAGS "-D__ARM_ACLE=0 -D__ARM_FEATURE_CRC32=0")
+# Enable CRC32 hardware instructions for Apple Clang on iOS.
+# All arm64 iOS devices (A7+, iOS 7+) support this.
+# Without -march=armv8-a+crc, Apple Clang does not enable CRC32 intrinsics/inline-asm
+# by default, causing build failures in 7zip (7zCrc.c) and zlib (crc32.c).
+set(VCPKG_C_FLAGS "-march=armv8-a+crc")
+set(VCPKG_CXX_FLAGS "-march=armv8-a+crc")
