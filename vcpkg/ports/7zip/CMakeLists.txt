@@ -409,7 +409,7 @@ target_compile_definitions(7zip
         -D_FILE_OFFSET_BITS=64
         -D_LARGEFILE_SOURCE
         -DEXTERNAL_CODECS
-        -D_7ZIP_LARGE_PAGES
+        -D_7ZIP_BUILD_NO_ARM_CRC
         -DUNICODE
         -D_UNICODE
 )
