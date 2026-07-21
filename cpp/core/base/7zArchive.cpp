@@ -1,6 +1,8 @@
 #include "tjsCommHead.h"
 #include "StorageIntf.h"
 #include "UtilStreams.h"
+
+#if !defined(TVP_NO_7ZIP)
 #include <algorithm>
 
 extern "C" {

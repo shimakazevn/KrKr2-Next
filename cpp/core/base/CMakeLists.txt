@@ -36,6 +36,9 @@ set(BASE_HEADERS_DIR
 )
 
 add_library(${PROJECT_NAME} STATIC ${BASE_SOURCE_FILES})
+if(VCPKG_TARGET_IS_IOS OR IOS)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE TVP_NO_7ZIP)
+endif()
 target_include_directories(${PROJECT_NAME} PUBLIC ${BASE_HEADERS_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 PRIVATE core_visual_module core_plugin_module core_environ_module core_extension_module core_sound_module core_utils_module)
 
