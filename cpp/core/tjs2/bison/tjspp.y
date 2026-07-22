@@ -1,4 +1,4 @@
-%require "3.8.2"
+%require "3.7"
 %language "C++"
 %header "tjspp.tab.hpp"
 %output "tjspp.tab.cpp"
