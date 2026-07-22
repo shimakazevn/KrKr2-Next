@@ -12,7 +12,7 @@ set(ENVIRON_SOURCE_FILES
     ${ENVIRON_PATH}/DumpSend.cpp
     ${ENVIRON_PATH}/EngineBootstrap.cpp
     ${ENVIRON_PATH}/EngineLoop.cpp
-    ${ENVIRON_PATH}/XP3ArchiveRepack.cpp
+    $<$<NOT:$<BOOL:${IOS}>>:${ENVIRON_PATH}/XP3ArchiveRepack.cpp>
 
     $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/android/AndroidUtils.cpp>
     $<$<BOOL:${ANDROID}>:${ENVIRON_PATH}/android/KrkrJniHelper.cpp>
@@ -53,6 +53,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC tjs2 PRIVATE core_base_module core_
 
 if(NOT VCPKG_TARGET_IS_IOS AND NOT IOS)
     find_package(7zip CONFIG REQUIRED)
+else()
+    target_compile_definitions(${PROJECT_NAME} PRIVATE TVP_NO_7ZIP)
 endif()
 find_package(tinyxml2 CONFIG REQUIRED)
 find_package(unofficial-minizip CONFIG REQUIRED)
