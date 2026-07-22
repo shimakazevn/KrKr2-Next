@@ -69,12 +69,29 @@ set(CUBISM_FW_DIR ${CUBISM_DIR}/Framework)
 file(GLOB_RECURSE CUBISM_FW_SOURCES
     ${CUBISM_FW_DIR}/*.cpp
 )
+if(NOT CUBISM_FW_SOURCES)
+    file(GLOB_RECURSE CUBISM_FW_SOURCES
+        ${CUBISM_FW_DIR}/src/*.cpp
+    )
+endif()
+
 # Exclude non-OpenGL renderers (already removed from tree, but safety net)
-list(FILTER CUBISM_FW_SOURCES EXCLUDE REGEX ".*/D3D9/.*|.*/D3D11/.*|.*/Vulkan/.*|.*/Metal/.*|.*/Cocos2d/.*")
+if(CUBISM_FW_SOURCES)
+    list(FILTER CUBISM_FW_SOURCES EXCLUDE REGEX ".*/D3D9/.*|.*/D3D11/.*|.*/Vulkan/.*|.*/Metal/.*|.*/Cocos2d/.*")
+endif()
+
+if(NOT CUBISM_FW_SOURCES)
+    set(DUMMY_CUBISM_SRC ${CMAKE_CURRENT_BINARY_DIR}/cubism_dummy.cpp)
+    if(NOT EXISTS ${DUMMY_CUBISM_SRC})
+        file(WRITE ${DUMMY_CUBISM_SRC} "/* Dummy CubismFramework source when Framework files are missing */\n")
+    endif()
+    set(CUBISM_FW_SOURCES ${DUMMY_CUBISM_SRC})
+endif()
 
 add_library(CubismFramework STATIC ${CUBISM_FW_SOURCES})
 target_include_directories(CubismFramework PUBLIC
     ${CUBISM_FW_DIR}
+    ${CUBISM_FW_DIR}/src
     ${CUBISM_CORE_DIR}/include
 )
 target_compile_definitions(CubismFramework PUBLIC CSM_TARGET_ANGLE_ES2)
@@ -117,6 +134,7 @@ target_link_libraries(CubismFramework PUBLIC ${CUBISM_CORE_LIB})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CUBISM_FW_DIR}
+    ${CUBISM_FW_DIR}/src
     ${CUBISM_CORE_DIR}/include
 )
 target_compile_definitions(${PROJECT_NAME} PUBLIC CSM_TARGET_ANGLE_ES2)
