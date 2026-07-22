@@ -191,6 +191,12 @@ tTVPArchive *TVPOpen7ZArchive(const ttstr &name, tTJSBinaryStream *st,
     }
     return arc;
 }
+#else
+tTVPArchive *TVPOpen7ZArchive(const ttstr &name, tTJSBinaryStream *st,
+                              bool normalizeFileName) {
+    return nullptr;
+}
+#endif
 
 #if 0
 void TVPUnpack7ZArchive(tTJSBinaryStream *st, ttstr outpath) {
