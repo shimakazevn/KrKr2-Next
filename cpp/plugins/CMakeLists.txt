@@ -3,7 +3,7 @@ project(krkr2plugin)
 
 add_library(${PROJECT_NAME} STATIC)
 
-target_sources(${PROJECT_NAME} PUBLIC
+set(PLUGIN_SOURCES
     scriptsEx.cpp
     win32dialog.cpp
     dirlist.cpp
@@ -28,12 +28,17 @@ target_sources(${PROJECT_NAME} PUBLIC
     layerExRaster.cpp
     layerExAreaAverage.cpp
     layerExLongExposure.cpp
-    krkrlive2d.cpp
     krkrgles.cpp
     drawDeviceD2DCompat.cpp
     wfBasicEffectCompat.cpp
     wfTypicalDSPCompat.cpp
 )
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cubism/Framework/src/CubismFramework.hpp OR EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cubism/Framework/CubismFramework.hpp)
+    list(APPEND PLUGIN_SOURCES krkrlive2d.cpp)
+endif()
+
+target_sources(${PROJECT_NAME} PUBLIC ${PLUGIN_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${KRKR2CORE_PATH}/
