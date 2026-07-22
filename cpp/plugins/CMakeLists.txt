@@ -36,6 +36,8 @@ set(PLUGIN_SOURCES
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cubism/Framework/src/CubismFramework.hpp OR EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/cubism/Framework/CubismFramework.hpp)
     list(APPEND PLUGIN_SOURCES krkrlive2d.cpp)
+else()
+    list(APPEND PLUGIN_SOURCES krkrlive2d_stub.cpp)
 endif()
 
 target_sources(${PROJECT_NAME} PUBLIC ${PLUGIN_SOURCES})
