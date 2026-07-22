@@ -754,3 +754,4 @@ bool TVPGetJoyPadAsyncState(tjs_uint keycode, bool getcurrent)
 	return tTVPPadDirectInputDevice::GetAsyncState(keycode, getcurrent);
 }
 //---------------------------------------------------------------------------
+#endif // #if 0
