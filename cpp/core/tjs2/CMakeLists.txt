@@ -26,6 +26,7 @@ endif()
 #===============================================================#
 find_program(BISON_EXECUTABLE NAMES win_bison.exe bison.exe bison
     HINTS
+        ${CMAKE_SOURCE_DIR}/.devtools/vcpkg/downloads/tools/win_bison/2.5.24
         /opt/homebrew/opt/bison/bin   # Homebrew (Apple Silicon)
         /usr/local/opt/bison/bin      # Homebrew (Intel Mac)
 )
