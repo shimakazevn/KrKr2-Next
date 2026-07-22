@@ -117,12 +117,13 @@ elseif(ANDROID)
     target_link_libraries(CubismFramework PRIVATE EGL GLESv2)
 endif()
 
-# Force include OpenGL ES 2 headers for CubismFramework OpenGL renderer files
+# Force include OpenGL ES 2 headers and extension macros for CubismFramework OpenGL renderer files
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|AppleClang")
-    target_compile_options(CubismFramework PRIVATE -include GLES2/gl2.h)
+    target_compile_options(CubismFramework PRIVATE -include GLES2/gl2.h -include GLES2/gl2ext.h)
 elseif(MSVC)
-    target_compile_options(CubismFramework PRIVATE /FI GLES2/gl2.h)
+    target_compile_options(CubismFramework PRIVATE /FI GLES2/gl2.h /FI GLES2/gl2ext.h)
 endif()
+target_compile_definitions(CubismFramework PRIVATE GL_TEXTURE_MAX_ANISOTROPY_EXT=0x84FE)
 
 if(ANDROID)
     set(CUBISM_CORE_ARCH ${CMAKE_ANDROID_ARCH_ABI})
