@@ -707,13 +707,13 @@ class _HomePageState extends State<HomePage> {
             children: [
               ValueListenableBuilder<double>(
                 valueListenable: progress,
-                builder: (_, value, _) =>
+                builder: (_, value, child) =>
                     LinearProgressIndicator(value: value),
               ),
               const SizedBox(height: 12),
               ValueListenableBuilder<String>(
                 valueListenable: currentFile,
-                builder: (_, value, _) => Text(
+                builder: (_, value, child) => Text(
                   value,
                   style: Theme.of(ctx).textTheme.bodySmall,
                   maxLines: 1,
