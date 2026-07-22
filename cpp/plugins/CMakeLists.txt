@@ -117,6 +117,13 @@ elseif(ANDROID)
     target_link_libraries(CubismFramework PRIVATE EGL GLESv2)
 endif()
 
+# Force include OpenGL ES 2 headers for CubismFramework OpenGL renderer files
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|AppleClang")
+    target_compile_options(CubismFramework PRIVATE -include GLES2/gl2.h)
+elseif(MSVC)
+    target_compile_options(CubismFramework PRIVATE /FI GLES2/gl2.h)
+endif()
+
 if(ANDROID)
     set(CUBISM_CORE_ARCH ${CMAKE_ANDROID_ARCH_ABI})
     set(CUBISM_CORE_LIB ${CUBISM_CORE_DIR}/lib/android/${CUBISM_CORE_ARCH}/libLive2DCubismCore.a)
@@ -130,7 +137,9 @@ elseif(APPLE)
     endif()
 endif()
 
-target_link_libraries(CubismFramework PUBLIC ${CUBISM_CORE_LIB})
+if(EXISTS "${CUBISM_CORE_LIB}")
+    target_link_libraries(CubismFramework PUBLIC ${CUBISM_CORE_LIB})
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CUBISM_FW_DIR}
