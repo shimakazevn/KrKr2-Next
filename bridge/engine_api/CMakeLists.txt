@@ -37,6 +37,11 @@ target_include_directories(engine_api
 if(TARGET krkr2core AND TARGET krkr2plugin)
     target_compile_definitions(engine_api PRIVATE ENGINE_API_USE_KRKR2_RUNTIME)
     target_link_libraries(engine_api PRIVATE krkr2core krkr2plugin)
+    foreach(_PLUGIN_TARGET psbfile psdfile layerex_draw motionplayer kagparserex)
+        if(TARGET ${_PLUGIN_TARGET})
+            target_link_libraries(engine_api PRIVATE ${_PLUGIN_TARGET})
+        endif()
+    endforeach()
 endif()
 
 # On Apple platforms, ANGLE GL symbols conflict with system OpenGL.framework.
