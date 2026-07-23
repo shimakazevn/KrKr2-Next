@@ -47,8 +47,9 @@ extern const IID IID_ITSSWaveDecoder = { 0x313864E2,
                                          { 0x8A, 0x6D, 0x43, 0x46, 0x5C, 0x10,
                                            0x5B, 0x58 } };
 #ifndef _WIN32
-//    extern const IID IID_IUnknown = {0,0,0,{0, 0xc0, 0, 0, 0,
-//    0x46}};//00000000-0000-0000-C000-000000000046
+extern const IID IID_IUnknown = {
+    0, 0, 0, { 0, 0xc0, 0, 0, 0, 0x46 }
+}; // 00000000-0000-0000-C000-000000000046
 extern const IID IID_IStream = {
     0xC, 0, 0, { 0, 0xc0, 0, 0, 0, 0x46 }
 }; // 0000000C-0000-0000-C000-000000000046

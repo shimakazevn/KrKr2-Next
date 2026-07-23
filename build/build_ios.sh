@@ -175,7 +175,7 @@ mkdir -p "$PLUGIN_LIBS_DIR"
 PROJECT_LIBS=()
 while IFS= read -r -d '' lib; do
     PROJECT_LIBS+=("$lib")
-done < <(find "$CMAKE_BUILD_DIR" -name "*.a" -not -path "*/vcpkg_installed/*" -not -path "*/cpp/plugins/*" -print0)
+done < <(find "$CMAKE_BUILD_DIR" -name "*.a" -not -path "*/vcpkg_installed/*" -print0)
 
 # Merge project libs into libengine_project.a
 # For psdparse: only extract its unique .o files (not already in libengine_api.a)
