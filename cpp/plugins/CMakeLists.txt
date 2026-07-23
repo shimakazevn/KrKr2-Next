@@ -81,10 +81,16 @@ if(EXISTS "${CUBISM_CORE_LIB}")
     target_link_libraries(CubismFramework PUBLIC ${CUBISM_CORE_LIB})
 endif()
 
-add_library(krkr2plugin STATIC
-    krkrlive2d.cpp
-    krkrgles.cpp
-)
+option(ENABLE_CUBISM "Enable Live2D Cubism plugin" OFF)
+
+set(KRKR2PLUGIN_SRCS krkrgles.cpp)
+if(ENABLE_CUBISM AND CUBISM_FW_SOURCES AND NOT CUBISM_FW_SOURCES MATCHES "cubism_dummy.cpp")
+    list(APPEND KRKR2PLUGIN_SRCS krkrlive2d.cpp)
+else()
+    list(APPEND KRKR2PLUGIN_SRCS krkrlive2d_stub.cpp)
+endif()
+
+add_library(krkr2plugin STATIC ${KRKR2PLUGIN_SRCS})
 
 target_include_directories(krkr2plugin PUBLIC
     ${CUBISM_FW_DIR}
