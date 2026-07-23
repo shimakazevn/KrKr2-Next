@@ -83,7 +83,36 @@ endif()
 
 option(ENABLE_CUBISM "Enable Live2D Cubism plugin" OFF)
 
-set(KRKR2PLUGIN_SRCS krkrgles.cpp)
+set(KRKR2PLUGIN_SRCS 
+    krkrgles.cpp
+    scriptsEx.cpp
+    win32dialog.cpp
+    dirlist.cpp
+    csvParser.cpp
+    layerExMovie.cpp
+    varfile.cpp
+    saveStruct.cpp
+    getabout.cpp
+    addFont.cpp
+    wutcwf.cpp
+    windowEx.cpp
+    getSample.cpp
+    layerExPerspective.cpp
+    fftgraph.cpp
+    LayerExBase.cpp
+    xp3filter.cpp
+    extrans.cpp
+    textrender.cpp
+    alphamovie.cpp
+    layerExBTOA.cpp
+    layerExImage.cpp
+    layerExRaster.cpp
+    layerExAreaAverage.cpp
+    layerExLongExposure.cpp
+    drawDeviceD2DCompat.cpp
+    wfBasicEffectCompat.cpp
+    wfTypicalDSPCompat.cpp
+)
 if(ENABLE_CUBISM AND CUBISM_FW_SOURCES AND NOT CUBISM_FW_SOURCES MATCHES "cubism_dummy.cpp")
     list(APPEND KRKR2PLUGIN_SRCS krkrlive2d.cpp)
 else()
