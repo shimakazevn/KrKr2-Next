@@ -81,24 +81,27 @@ if(EXISTS "${CUBISM_CORE_LIB}")
     target_link_libraries(CubismFramework PUBLIC ${CUBISM_CORE_LIB})
 endif()
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+add_library(krkr2plugin STATIC
+    krkrlive2d.cpp
+    krkrgles.cpp
+)
+
+target_include_directories(krkr2plugin PUBLIC
     ${CUBISM_FW_DIR}
     ${CUBISM_FW_DIR}/src
     ${CUBISM_CORE_DIR}/include
+    ${KRKR2PLUGIN_PATH}
+    ${KRKR2PLUGIN_PATH}/simplebinder
 )
-target_compile_definitions(${PROJECT_NAME} PUBLIC CSM_TARGET_ANGLE_ES2)
-target_link_libraries(${PROJECT_NAME} PUBLIC CubismFramework)
+target_compile_definitions(krkr2plugin PUBLIC CSM_TARGET_ANGLE_ES2)
+target_link_libraries(krkr2plugin PUBLIC CubismFramework krkr2core)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${KRKR2PLUGIN_PATH} ${KRKR2PLUGIN_PATH}/simplebinder)
-target_link_libraries(${PROJECT_NAME} PUBLIC krkr2core)
+if(TARGET ${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME} PUBLIC krkr2plugin)
+endif()
 
 add_subdirectory(psdfile)
 add_subdirectory(psbfile)
 add_subdirectory(layerex_draw)
 add_subdirectory(motionplayer)
 add_subdirectory(kagparserex)
-
-target_sources(${PROJECT_NAME} PRIVATE
-    krkrlive2d.cpp
-    krkrgles.cpp
-)
