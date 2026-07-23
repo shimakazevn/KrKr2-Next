@@ -256,9 +256,17 @@ FLUTTER_BUILD_MODE="$BUILD_TYPE_LOWER"
 log_info "Building Flutter iOS app ($FLUTTER_BUILD_MODE)..."
 
 if [[ "$FLUTTER_BUILD_MODE" == "release" ]]; then
-    (cd "$FLUTTER_APP_DIR" && "$FLUTTER_BIN" build ios --release --no-codesign)
+    (cd "$FLUTTER_APP_DIR" && "$FLUTTER_BIN" build ios --release --no-codesign) || {
+        echo "=== XCODEBUILD LOG ==="
+        cat "$FLUTTER_APP_DIR/build/ios/xcodebuild.log" || true
+        exit 1
+    }
 else
-    (cd "$FLUTTER_APP_DIR" && "$FLUTTER_BIN" build ios --debug --no-codesign)
+    (cd "$FLUTTER_APP_DIR" && "$FLUTTER_BIN" build ios --debug --no-codesign) || {
+        echo "=== XCODEBUILD LOG ==="
+        cat "$FLUTTER_APP_DIR/build/ios/xcodebuild.log" || true
+        exit 1
+    }
 fi
 
 # ============================================================
