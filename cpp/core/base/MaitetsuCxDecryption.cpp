@@ -277,7 +277,7 @@ private:
     }
 
     CxProgram* generate_program(uint32_t seed) {
-        CxProgram* program = new CxProgram(seed, CONTROL_BLOCK, 512);
+        CxProgram* program = new CxProgram(seed, CONTROL_BLOCK, sizeof(CONTROL_BLOCK) / sizeof(CONTROL_BLOCK[0]));
         for (int stage = 5; stage >= 1; stage--) {
             if (emit_code(program, stage)) {
                 return program;
