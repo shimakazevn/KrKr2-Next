@@ -79,6 +79,15 @@ android {
             )
         }
     }
+
+    packaging {
+        resources {
+            excludes += listOf("**/libomp.so")
+        }
+        jniLibs {
+            excludes += listOf("**/libomp.so")
+        }
+    }
 }
 
 dependencies {

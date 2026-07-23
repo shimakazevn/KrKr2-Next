@@ -84,7 +84,7 @@
       "features": [
         {
           "name": "openmp",
-          "platform": "!ios"
+          "platform": "windows | linux"
         }
       ]
     },
