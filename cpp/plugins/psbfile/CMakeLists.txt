@@ -10,7 +10,6 @@ target_sources(${PROJECT_NAME} PUBLIC
     PSBMedia.cpp
     types/PimgType.cpp
     types/MotionType.cpp
-    types/PimgType.cpp
     types/ScnType.cpp
     types/ImageType.cpp
     types/MmoType.cpp
