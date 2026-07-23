@@ -68,12 +68,49 @@ inline uint32_t run_cx_vm(uint32_t hash_val, uint64_t pos) {
 
 } // namespace
 
+#include <mutex>
+#include <map>
+
+static std::map<uint32_t, bool> s_is_encrypted_map;
+static std::mutex s_map_mutex;
+
 void MaitetsuCxExtractionFilter(tTVPXP3ExtractionFilterInfo *info) {
     if (!info || !info->Buffer || info->BufferSize == 0) return;
 
     // Check if entry hash indicates encrypted segment
     uint32_t hash_val = info->FileHash;
     if (hash_val == 0) return;
+
+    bool should_decrypt = true;
+    
+    if (info->Offset == 0) {
+        // Auto-detect if file is ALREADY unencrypted
+        uint8_t *buf = static_cast<uint8_t*>(info->Buffer);
+        bool is_unencrypted = false;
+        if (info->BufferSize >= 4) {
+            if (buf[0] == 'T' && buf[1] == 'J' && buf[2] == 'S' && buf[3] == '2') is_unencrypted = true;
+            else if (buf[0] == '/' && buf[1] == '/') is_unencrypted = true;
+            else if (buf[0] == 0x89 && buf[1] == 'P' && buf[2] == 'N' && buf[3] == 'G') is_unencrypted = true;
+            else if (buf[0] == 'R' && buf[1] == 'I' && buf[2] == 'F' && buf[3] == 'F') is_unencrypted = true;
+            else if (buf[0] == 'O' && buf[1] == 'g' && buf[2] == 'g' && buf[3] == 'S') is_unencrypted = true;
+            else if (buf[0] == 'P' && buf[1] == 'S' && buf[2] == 'B' && buf[3] == 0x00) is_unencrypted = true;
+            else if (buf[0] == 'B' && buf[1] == 'M') is_unencrypted = true;
+            else if (buf[0] == 0xFF && buf[1] == 0xFE) is_unencrypted = true; // UTF-16 LE
+            else if (buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF) is_unencrypted = true; // UTF-8
+        }
+        
+        std::lock_guard<std::mutex> lock(s_map_mutex);
+        s_is_encrypted_map[hash_val] = !is_unencrypted;
+        should_decrypt = !is_unencrypted;
+    } else {
+        std::lock_guard<std::mutex> lock(s_map_mutex);
+        auto it = s_is_encrypted_map.find(hash_val);
+        if (it != s_is_encrypted_map.end()) {
+            should_decrypt = it->second;
+        }
+    }
+
+    if (!should_decrypt) return;
 
     uint8_t *buf = static_cast<uint8_t*>(info->Buffer);
     uint64_t pos = info->Offset;
