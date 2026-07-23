@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   # Pre-built engine static libraries (split to avoid duplicate symbols)
   # libengine_project.a = project code (force-loaded via OTHER_LDFLAGS)
   # libengine_vendors.a = third-party vcpkg libs (normal linking)
-  s.vendored_libraries = 'Libs/libengine_vendors.a'
+  s.vendored_libraries = 'Libs/libengine_project.a', 'Libs/libengine_vendors.a'
 
   # System framework dependencies (required by SDL2, FFmpeg, OpenAL, ANGLE, etc.)
   s.frameworks = 'IOSurface', 'CoreVideo', 'Metal', 'QuartzCore', 'Accelerate',
