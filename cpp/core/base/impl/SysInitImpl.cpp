@@ -165,13 +165,16 @@ void TVPBeforeSystemInit() {
     // iOS APFS is case-insensitive so the lowercase path can still open the file.
     {
         const tjs_char *p = TVPProjectDir.c_str();
-        tjs_int len = TVPProjectDir.GetLength();
+        tjs_int len = TVPProjectDir.GetLen();
         // Path is lowercased at this point, so compare against lowercase extension
         bool endsWithXP3 = (len >= 4) &&
             p[len-4] == TJS_W('.') && p[len-3] == TJS_W('x') &&
             p[len-2] == TJS_W('p') && p[len-1] == TJS_W('3');
-        TVPProjectDir += (endsWithXP3 || TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir))
-            ? TVPArchiveDelimiter : TJS_W("/");
+        if (endsWithXP3 || TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir)) {
+            TVPProjectDir += TVPArchiveDelimiter;
+        } else {
+            TVPProjectDir += TJS_W("/");
+        }
     }
 #else
     if(TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir)) {
