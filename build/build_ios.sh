@@ -178,21 +178,54 @@ while IFS= read -r -d '' lib; do
 done < <(find "$CMAKE_BUILD_DIR" -name "*.a" -not -path "*/vcpkg_installed/*" -print0)
 
 # Merge project libs into libengine_project.a
-# By extracting all .a files into a single directory, we naturally deduplicate any .o files
-# that were compiled multiple times across different modules (like krkr2core and krkr2plugin).
+# By hashing the .o files, we deduplicate identical .o files (compiled multiple times)
+# but preserve different .o files that happen to share a filename (e.g. main.cpp.o).
 MERGE_TMPDIR=$(mktemp -d)
+export MERGE_TMPDIR
 trap "rm -rf '$MERGE_TMPDIR'" EXIT
 
 mkdir -p "$MERGE_TMPDIR/objs"
 
-for lib in "${PROJECT_LIBS[@]}"; do
-    (cd "$MERGE_TMPDIR/objs" && ar x "$lib" 2>/dev/null || true)
-done
-
-# Extract plugin sub-libs (e.g. psdparse)
+# Collect plugin sub-libs (e.g. psdparse)
 while IFS= read -r -d '' sublib; do
-    (cd "$MERGE_TMPDIR/objs" && ar x "$sublib" 2>/dev/null || true)
+    PROJECT_LIBS+=("$sublib")
 done < <(find "$CMAKE_BUILD_DIR/cpp/plugins" -mindepth 3 -name "*.a" -print0 2>/dev/null || true)
+
+python3 - "\${PROJECT_LIBS[@]}" <<'EOF'
+import os
+import subprocess
+import hashlib
+import sys
+import glob
+
+out_dir = os.environ.get("MERGE_TMPDIR") + "/objs"
+known_hashes = {}
+libs = sys.argv[1:]
+
+for lib in libs:
+    lib_name = os.path.basename(lib)
+    tmp_ext = os.path.join(out_dir, lib_name + "_ext")
+    os.makedirs(tmp_ext, exist_ok=True)
+    subprocess.run(["ar", "x", lib], cwd=tmp_ext, check=False)
+    
+    for obj in glob.glob(os.path.join(tmp_ext, "*.o")):
+        with open(obj, "rb") as f:
+            h = hashlib.sha256(f.read()).hexdigest()
+        
+        if h not in known_hashes:
+            known_hashes[h] = obj
+            # Move it to out_dir with a unique name
+            new_name = os.path.join(out_dir, lib_name + "_" + os.path.basename(obj))
+            os.rename(obj, new_name)
+    
+    # cleanup
+    subprocess.run(["rm", "-rf", tmp_ext])
+EOF
+python3_exit=$?
+if [ $python3_exit -ne 0 ]; then
+    echo "Python deduplication script failed"
+    exit 1
+fi
 
 # Pack all unique .o files into the final library
 find "$MERGE_TMPDIR/objs" -name "*.o" | xargs libtool -static -o "$PLUGIN_LIBS_DIR/libengine_project.a"
