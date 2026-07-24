@@ -162,8 +162,9 @@ namespace TJS {
                 tTJSString str(TJS_W("(object)"));
                 iTJSDispatch2 *obj = val.AsObjectNoAddRef();
                 if(obj) {
-                    tjs_char buf[32];
-                    TJS_snprintf(buf, sizeof(buf) / sizeof(tjs_char), TJS_W(" 0x%p"), (void*)obj);
+                    tjs_char buf[34];
+                    TJS_tTVInt_to_str((tjs_int64)(uintptr_t)obj, buf);
+                    str += TJS_W(" ");
                     str += buf;
                 }
                 TJSTrimStringLength(str, maxlen);
