@@ -36,12 +36,25 @@ target_include_directories(engine_api
 
 if(TARGET krkr2core AND TARGET krkr2plugin)
     target_compile_definitions(engine_api PRIVATE ENGINE_API_USE_KRKR2_RUNTIME)
-    target_link_libraries(engine_api PRIVATE krkr2core krkr2plugin)
-    foreach(_PLUGIN_TARGET psbfile psdfile layerex_draw motionplayer kagparserex)
-        if(TARGET ${_PLUGIN_TARGET})
-            target_link_libraries(engine_api PRIVATE ${_PLUGIN_TARGET})
-        endif()
-    endforeach()
+    
+    if(ANDROID)
+        # On Android, the linker strips unreferenced objects from static libraries.
+        # Since plugins register themselves via static initializers, they appear unreferenced.
+        # We must use --whole-archive to force the linker to include all plugin objects.
+        target_link_libraries(engine_api PRIVATE krkr2core -Wl,--whole-archive krkr2plugin -Wl,--no-whole-archive)
+        foreach(_PLUGIN_TARGET psbfile psdfile layerex_draw motionplayer kagparserex steam fstat json)
+            if(TARGET ${_PLUGIN_TARGET})
+                target_link_libraries(engine_api PRIVATE -Wl,--whole-archive ${_PLUGIN_TARGET} -Wl,--no-whole-archive)
+            endif()
+        endforeach()
+    else()
+        target_link_libraries(engine_api PRIVATE krkr2core krkr2plugin)
+        foreach(_PLUGIN_TARGET psbfile psdfile layerex_draw motionplayer kagparserex steam fstat json)
+            if(TARGET ${_PLUGIN_TARGET})
+                target_link_libraries(engine_api PRIVATE ${_PLUGIN_TARGET})
+            endif()
+        endforeach()
+    endif()
 endif()
 
 # On Apple platforms, ANGLE GL symbols conflict with system OpenGL.framework.
