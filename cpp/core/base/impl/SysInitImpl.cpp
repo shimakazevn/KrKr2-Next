@@ -159,19 +159,19 @@ void TVPBeforeSystemInit() {
         TVPArchiveDelimiter = ttstr(v)[0];
 
 #if !defined(__ANDROID__)
-    // On iOS (case-sensitive FS), the engine internally lowercases paths.
-    // TVPIsExistentStorageNoSearchNoNormalize will fail on the lowercase path.
-    // Use TVPGetLocallyAccessibleName to resolve the correct-case path first.
+    // On iOS, TVPGetLocallyAccessibleName returns empty at this stage because no homeDir
+    // is registered yet. TVPIsExistentStorageNoSearchNoNormalize may also fail on the
+    // lowercased path. Instead, detect archive mode by file extension (.xp3).
+    // iOS APFS is case-insensitive so the lowercase path can still open the file.
     {
-        ttstr accessibleDir = TVPGetLocallyAccessibleName(TVPProjectDir);
-        if(!accessibleDir.IsEmpty() && TVPIsExistentStorageNoSearchNoNormalize(accessibleDir)) {
-            TVPProjectDir = accessibleDir;
-            TVPProjectDir += TVPArchiveDelimiter;
-        } else if(TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir)) {
-            TVPProjectDir += TVPArchiveDelimiter;
-        } else {
-            TVPProjectDir += TJS_W("/");
-        }
+        const tjs_char *p = TVPProjectDir.c_str();
+        tjs_int len = TVPProjectDir.GetLength();
+        // Path is lowercased at this point, so compare against lowercase extension
+        bool endsWithXP3 = (len >= 4) &&
+            p[len-4] == TJS_W('.') && p[len-3] == TJS_W('x') &&
+            p[len-2] == TJS_W('p') && p[len-1] == TJS_W('3');
+        TVPProjectDir += (endsWithXP3 || TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir))
+            ? TVPArchiveDelimiter : TJS_W("/");
     }
 #else
     if(TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir)) {
