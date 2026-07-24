@@ -329,15 +329,19 @@ class _GamePageState extends State<GamePage> with WidgetsBindingObserver {
         return 'Game path does not exist: $path';
       }
 
-      // Accept either startup.tjs in root or data/system/initialize.tjs
+      // Accept either startup.tjs in root, data/system/initialize.tjs, or a valid XP3 archive like data.xp3
       final startup = File('$path/startup.tjs');
       final init = File('$path/data/system/initialize.tjs');
       final initUpper = File('$path/data/system/Initialize.tjs');
+      final dataXp3 = File('$path/data.xp3');
+      final dataExe = File('$path/data.exe');
       if (!await startup.exists() &&
           !await init.exists() &&
-          !await initUpper.exists()) {
+          !await initUpper.exists() &&
+          !await dataXp3.exists() &&
+          !await dataExe.exists()) {
         return 'Missing startup script in: $path\n'
-            '(looked for startup.tjs and data/system/initialize.tjs)';
+            '(looked for startup.tjs, data.xp3, and data/system/initialize.tjs)';
       }
     } catch (e) {
       return 'Game path check failed: $e';
