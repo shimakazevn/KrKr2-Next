@@ -408,6 +408,14 @@ class _GamePageState extends State<GamePage> with WidgetsBindingObserver {
     // On Android, auto-detect if the user selected the data/ folder
     // itself and step up to the real game root.
     normalizedGamePath = await _adjustGamePathForAndroid(normalizedGamePath);
+    
+    // AUTO-MOUNT data.xp3 if the user selected a directory that contains data.xp3 but no startup.tjs
+    if (!File('$normalizedGamePath/startup.tjs').existsSync() && 
+        !File('$normalizedGamePath/data/system/Initialize.tjs').existsSync() && 
+        File('$normalizedGamePath/data.xp3').existsSync()) {
+      normalizedGamePath = '$normalizedGamePath/data.xp3';
+      _log('Auto-adjusted path to data.xp3 because directory has no startup.tjs');
+    }
     _log('engine_open_game($normalizedGamePath)...');
     _log('Starting application — this may take a moment...');
 
