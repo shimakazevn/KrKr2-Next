@@ -191,7 +191,7 @@ while IFS= read -r -d '' sublib; do
     PROJECT_LIBS+=("$sublib")
 done < <(find "$CMAKE_BUILD_DIR/cpp/plugins" -mindepth 3 -name "*.a" -print0 2>/dev/null || true)
 
-python3 - "\${PROJECT_LIBS[@]}" <<'EOF'
+python3 - "${PROJECT_LIBS[@]}" <<'EOF'
 import os
 import subprocess
 import hashlib
@@ -227,8 +227,9 @@ if [ $python3_exit -ne 0 ]; then
     exit 1
 fi
 
-# Pack all unique .o files into the final library
-find "$MERGE_TMPDIR/objs" -name "*.o" | xargs libtool -static -o "$PLUGIN_LIBS_DIR/libengine_project.a"
+# Pack all unique .o files into the final library using -filelist to avoid command line limits
+find "$MERGE_TMPDIR/objs" -name "*.o" > "$MERGE_TMPDIR/filelist.txt"
+libtool -static -o "$PLUGIN_LIBS_DIR/libengine_project.a" -filelist "$MERGE_TMPDIR/filelist.txt"
 
 log_info "Project library -> $PLUGIN_LIBS_DIR/libengine_project.a"
 
