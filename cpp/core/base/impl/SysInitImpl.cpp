@@ -158,9 +158,7 @@ void TVPBeforeSystemInit() {
     if(TVPGetCommandLine(TJS_W("-arcdelim"), &v))
         TVPArchiveDelimiter = ttstr(v)[0];
 
-    ttstr accessibleDir = TVPGetLocallyAccessibleName(TVPProjectDir);
-    if(TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir) || 
-       (!accessibleDir.IsEmpty() && TVPIsExistentStorageNoSearchNoNormalize(accessibleDir))) {
+    if(TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir)) {
         TVPProjectDir += TVPArchiveDelimiter;
     } else {
         TVPProjectDir += TJS_W("/");
