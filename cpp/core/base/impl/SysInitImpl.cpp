@@ -158,11 +158,28 @@ void TVPBeforeSystemInit() {
     if(TVPGetCommandLine(TJS_W("-arcdelim"), &v))
         TVPArchiveDelimiter = ttstr(v)[0];
 
+#if !defined(__ANDROID__)
+    // On iOS (case-sensitive FS), the engine internally lowercases paths.
+    // TVPIsExistentStorageNoSearchNoNormalize will fail on the lowercase path.
+    // Use TVPGetLocallyAccessibleName to resolve the correct-case path first.
+    {
+        ttstr accessibleDir = TVPGetLocallyAccessibleName(TVPProjectDir);
+        if(!accessibleDir.IsEmpty() && TVPIsExistentStorageNoSearchNoNormalize(accessibleDir)) {
+            TVPProjectDir = accessibleDir;
+            TVPProjectDir += TVPArchiveDelimiter;
+        } else if(TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir)) {
+            TVPProjectDir += TVPArchiveDelimiter;
+        } else {
+            TVPProjectDir += TJS_W("/");
+        }
+    }
+#else
     if(TVPIsExistentStorageNoSearchNoNormalize(TVPProjectDir)) {
         TVPProjectDir += TVPArchiveDelimiter;
     } else {
         TVPProjectDir += TJS_W("/");
     }
+#endif
     TVPSetCurrentDirectory(TVPProjectDir);
     // randomize
     TVPInitRandomGenerator();
