@@ -160,9 +160,11 @@ namespace TJS {
             }
             case tvtObject: {
                 tTJSString str(TJS_W("(object)"));
-                try {
-                    str += ttstr(val);
-                } catch(...) {
+                iTJSDispatch2 *obj = val.AsObjectNoAddRef();
+                if(obj) {
+                    tjs_char buf[32];
+                    TJS_snprintf(buf, sizeof(buf) / sizeof(tjs_char), TJS_W(" 0x%p"), (void*)obj);
+                    str += buf;
                 }
                 TJSTrimStringLength(str, maxlen);
                 return str;
