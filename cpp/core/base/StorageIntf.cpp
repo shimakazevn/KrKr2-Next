@@ -1036,6 +1036,7 @@ static tjs_uint TVPRebuildAutoPathTable() {
                             if(!TJS_strchr(name.c_str() + in_arc_name_len,
                                            TJS_W('/'))) {
                                 ttstr sname = TVPExtractStorageName(name);
+                                tTVPArchive::NormalizeInArchiveStorageName(sname);
                                 TVPAutoPathTable.Add(sname, path);
                                 count++;
                             }
@@ -1060,7 +1061,9 @@ static tjs_uint TVPRebuildAutoPathTable() {
 
             TVPStorageMediaManager.GetListAt(path, &lister);
             for(auto &i : lister.list) {
-                TVPAutoPathTable.Add(i, path);
+                ttstr sname = i;
+                tTVPArchive::NormalizeInArchiveStorageName(sname);
+                TVPAutoPathTable.Add(sname, path);
                 count++;
             }
         }
@@ -1123,10 +1126,11 @@ ttstr TVPGetPlacedPath(const ttstr &name) {
     // not found in current folder
     // search through auto path table
 
-    ttstr storagename = TVPExtractStorageName(normalized);
+            ttstr storagename = TVPExtractStorageName(normalized);
+            tTVPArchive::NormalizeInArchiveStorageName(storagename);
 
-    TVPRebuildAutoPathTable(); // ensure auto path table
-    ttstr *result = TVPAutoPathTable.Find(storagename);
+            TVPRebuildAutoPathTable(); // ensure auto path table
+            ttstr *result = TVPAutoPathTable.Find(storagename);
     if(result) {
         // found in table
         ttstr found = *result + storagename;
