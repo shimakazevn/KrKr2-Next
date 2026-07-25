@@ -1486,15 +1486,13 @@ bool TVPSaveStreamToFile(tTJSBinaryStream *st, tjs_uint64 offset,
 static std::vector<ttstr> TVPAutoMountedPaths;
 
 void TVPAutoMountSiblingXP3Archives() {
-    if(TVPProjectDir.GetLastChar() != TJS_W('/'))
-        return;
-
-    tjs_int len = TVPProjectDir.GetLen();
-    while(len > 0 && TVPProjectDir[len - 1] == TJS_W('/'))
+    ttstr projDir = TVPProjectDir;
+    tjs_int len = projDir.GetLen();
+    while(len > 0 && (projDir[len - 1] == TVPArchiveDelimiter || projDir[len - 1] == TJS_W('/') || projDir[len - 1] == TJS_W('\\')))
         len--;
     if(len == 0)
         return;
-    ttstr projDir = TVPProjectDir.SubString(0, len);
+    projDir = projDir.SubString(0, len);
     ttstr parentStoragePath = TVPExtractStoragePath(projDir);
     if(parentStoragePath.IsEmpty())
         return;
