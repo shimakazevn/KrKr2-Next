@@ -165,7 +165,7 @@ void TVPBeforeSystemInit() {
     {
         tjs_int len = TVPProjectDir.GetLen();
         if (len > 0 && (TVPProjectDir[len-1] == TJS_W('/') || TVPProjectDir[len-1] == TJS_W('\\'))) {
-            TVPProjectDir.SetLength(len - 1);
+            TVPProjectDir = ttstr(TVPProjectDir.c_str(), len - 1);
             len--;
         }
         const tjs_char *p = TVPProjectDir.c_str();
