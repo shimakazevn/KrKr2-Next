@@ -254,7 +254,7 @@ void tTVPMemoryStream::Init() {
 
 //---------------------------------------------------------------------------
 void *tTVPMemoryStream::Alloc(size_t size) {
-#if defined(__APPLE__) || defined(__linux__) || defined(__ANDROID__)
+#ifdef TVP_USE_MMAP_TEMP
     if(size >= kStreamMmapThreshold) {
         void *p = TVPMmapAlloc(size);
         if(p) { UseMmap = true; return p; }
@@ -266,7 +266,7 @@ void *tTVPMemoryStream::Alloc(size_t size) {
 
 //---------------------------------------------------------------------------
 void *tTVPMemoryStream::Realloc(void *orgblock, size_t size) {
-#if defined(__APPLE__) || defined(__linux__) || defined(__ANDROID__)
+#ifdef TVP_USE_MMAP_TEMP
     if(UseMmap) {
         void *newblock = TVPMmapAlloc(size);
         if(!newblock) return nullptr;
@@ -287,7 +287,7 @@ void *tTVPMemoryStream::Realloc(void *orgblock, size_t size) {
 
 //---------------------------------------------------------------------------
 void tTVPMemoryStream::Free(void *block) {
-#if defined(__APPLE__) || defined(__linux__) || defined(__ANDROID__)
+#ifdef TVP_USE_MMAP_TEMP
     if(UseMmap) {
         TVPMmapFree(block);
         UseMmap = false;
