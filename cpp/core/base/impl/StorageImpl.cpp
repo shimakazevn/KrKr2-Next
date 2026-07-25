@@ -134,13 +134,15 @@ void tTVPFileMedia::NormalizeDomainName(ttstr &name) {
 //---------------------------------------------------------------------------
 void tTVPFileMedia::NormalizePathName(ttstr &name) {
     // normalize path name
-    // make all characters small
+#if defined(_WIN32)
+    // make all characters small on Windows
     tjs_char *p = name.Independ();
     while(*p) {
         if(*p >= TJS_W('A') && *p <= TJS_W('Z'))
             *p += TJS_W('a') - TJS_W('A');
         p++;
     }
+#endif
 #if defined(__APPLE__)
     _tjs_normalize_nfc(name);
 #endif
