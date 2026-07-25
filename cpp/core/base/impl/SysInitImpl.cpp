@@ -188,6 +188,7 @@ void TVPBeforeSystemInit() {
     }
 #endif
     TVPSetCurrentDirectory(TVPProjectDir);
+    TVPAutoMountSiblingXP3Archives();
     // randomize
     TVPInitRandomGenerator();
 
