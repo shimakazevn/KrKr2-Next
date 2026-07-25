@@ -1575,10 +1575,13 @@ void TVPAutoMountSiblingXP3Archives() {
             const tjs_char *s = fname.c_str();
             tjs_int len = fname.GetLen();
             for(tjs_int j = 0; j < len; j++) {
-                if(s[j] == TJS_W('/')) {
+                if(s[j] == TJS_W('/') || s[j] == TJS_W('\\')) {
                     std::u16string d(
                         reinterpret_cast<const char16_t *>(s),
                         static_cast<size_t>(j + 1));
+                    for(auto &ch : d) {
+                        if(ch == u'\\') ch = u'/';
+                    }
                     dirPaths.insert(d);
                 }
             }
