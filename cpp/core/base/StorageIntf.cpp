@@ -1046,10 +1046,8 @@ static tjs_uint TVPRebuildAutoPathTable() {
                     }
                 }
             } catch(...) {
-                arc->Release();
                 throw;
             }
-            arc->Release();
         } else {
             // normal folder
             class tLister : public iTVPStorageLister {
