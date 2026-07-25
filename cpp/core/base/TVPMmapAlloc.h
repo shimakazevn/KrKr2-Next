@@ -5,15 +5,14 @@
 
 inline void *TVPMmapAlloc(size_t size) {
     if(!size) return nullptr;
-    void *ptr = nullptr;
-    if(posix_memalign(&ptr, 16, size) != 0) return nullptr;
-    return ptr;
+    return malloc(size);
 }
 
 inline void TVPMmapFree(void *mem) {
     if(mem) free(mem);
 }
 
-#define TVP_USE_MMAP_TEMP 1
+// TVP_USE_MMAP_TEMP disabled in favor of standard C++ malloc/free/delete[]
+// #define TVP_USE_MMAP_TEMP 1
 
 #endif
