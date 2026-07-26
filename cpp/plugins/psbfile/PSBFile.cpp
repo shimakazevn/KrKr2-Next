@@ -363,7 +363,7 @@ namespace PSB {
 
         bool fileDataMmap = false;
         uint8_t *fileData = nullptr;
-#if defined(__APPLE__) || defined(__linux__) || defined(__ANDROID__)
+#ifdef TVP_USE_MMAP_TEMP
         if(readSize >= kPSBMmapThreshold) {
             fileData = (uint8_t *)TVPMmapAlloc(readSize);
             fileDataMmap = true;
@@ -376,7 +376,7 @@ namespace PSB {
 
         auto freeFileData = [&]() {
             if(fileDataMmap) {
-#if defined(__APPLE__) || defined(__linux__) || defined(__ANDROID__)
+#ifdef TVP_USE_MMAP_TEMP
                 TVPMmapFree(fileData);
 #endif
             } else {
