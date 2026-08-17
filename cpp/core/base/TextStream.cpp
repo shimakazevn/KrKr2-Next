@@ -240,9 +240,24 @@ public:
                 reinterpret_cast<const char *>(raw.data() + raw.size()),
                 encoding);
             _buffer = boost::locale::conv::utf_to_utf<char16_t>(wide);
-        } catch(const std::exception &e) {
-            spdlog::error(e.what());
-            TVPThrowExceptionMessage(TJSNarrowToWideConversionError);
+        } catch(...) {
+            try {
+                std::wstring wide = boost::locale::conv::to_utf<wchar_t>(
+                    reinterpret_cast<const char *>(raw.data()),
+                    reinterpret_cast<const char *>(raw.data() + raw.size()),
+                    "UTF-8");
+                _buffer = boost::locale::conv::utf_to_utf<char16_t>(wide);
+            } catch(...) {
+                try {
+                    std::wstring wide = boost::locale::conv::to_utf<wchar_t>(
+                        reinterpret_cast<const char *>(raw.data()),
+                        reinterpret_cast<const char *>(raw.data() + raw.size()),
+                        "cp932");
+                    _buffer = boost::locale::conv::utf_to_utf<char16_t>(wide);
+                } catch(...) {
+                    TVPThrowExceptionMessage(TJSNarrowToWideConversionError);
+                }
+            }
         }
     }
 
