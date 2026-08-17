@@ -443,13 +443,30 @@ void MaitetsuCxExtractionFilter(tTVPXP3ExtractionFilterInfo *info) {
         if (info->BufferSize >= 4) {
             if (buf[0] == 'T' && buf[1] == 'J' && buf[2] == 'S' && buf[3] == '2') is_unencrypted = true;
             else if (buf[0] == '/' && buf[1] == '/') is_unencrypted = true;
+            else if (buf[0] == '/' && buf[1] == '*') is_unencrypted = true;
             else if (buf[0] == 0x89 && buf[1] == 'P' && buf[2] == 'N' && buf[3] == 'G') is_unencrypted = true;
             else if (buf[0] == 'R' && buf[1] == 'I' && buf[2] == 'F' && buf[3] == 'F') is_unencrypted = true;
             else if (buf[0] == 'O' && buf[1] == 'g' && buf[2] == 'g' && buf[3] == 'S') is_unencrypted = true;
             else if (buf[0] == 'P' && buf[1] == 'S' && buf[2] == 'B' && buf[3] == 0x00) is_unencrypted = true;
             else if (buf[0] == 'B' && buf[1] == 'M') is_unencrypted = true;
             else if (buf[0] == 0xFF && buf[1] == 0xFE) is_unencrypted = true; // UTF-16 LE
-            else if (buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF) is_unencrypted = true; // UTF-8
+            else if (buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF) is_unencrypted = true; // UTF-8 BOM
+            else if (buf[0] == '@' || buf[0] == '[' || buf[0] == '*' || buf[0] == '#') is_unencrypted = true; // KAG tag/label
+            else {
+                // Check if the prefix is valid printable ASCII text (e.g. unencrypted .tjs / .ks / .txt)
+                size_t checkLen = info->BufferSize < 32 ? info->BufferSize : 32;
+                bool allAscii = true;
+                for (size_t i = 0; i < checkLen; ++i) {
+                    uint8_t c = buf[i];
+                    if (c != 0x09 && c != 0x0A && c != 0x0D && (c < 0x20 || c > 0x7E)) {
+                        allAscii = false;
+                        break;
+                    }
+                }
+                if (allAscii && checkLen >= 4) {
+                    is_unencrypted = true;
+                }
+            }
         }
         
         std::lock_guard<std::mutex> lock(s_map_mutex);
