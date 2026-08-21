@@ -960,25 +960,46 @@ void TVPExecuteStartupScript() {
                             place.AsStdString().c_str());
 #endif
         TVPStartupSuccess = false;
+        bool stream_ok = false;
         try {
             iTJSTextReadStream *stream = TVPCreateTextStreamForRead(place, "");
             stream->Destruct();
-            TVPExecuteStorage(TVPStartupScriptName);
-            TVPStartupSuccess = true;
+            stream_ok = true;
         } catch(...) {
-            if(!TVPIsExistentStorage(TJS_W("system/Initialize.tjs"))) {
+            stream_ok = false;
+        }
+
+        if (stream_ok) {
+            try {
+                TVPExecuteStorage(TVPStartupScriptName);
+                TVPStartupSuccess = true;
+            } catch (const eTJS &e) {
+                spdlog::error("Exception in startup script {}: {}", TVPStartupScriptName.AsStdString(), e.GetMessage().AsStdString());
+                TVPAddImportantLog(ttstr(TJS_W("Exception in startup: ")) + e.GetMessage());
+                throw;
+            } catch (const std::exception &e) {
+                spdlog::error("Exception in startup script {}: {}", TVPStartupScriptName.AsStdString(), e.what());
+                throw;
+            } catch (...) {
+                spdlog::error("Unknown exception in startup script {}", TVPStartupScriptName.AsStdString());
                 throw;
             }
-        }
-        if(!TVPStartupSuccess) {
-            // try direct execute initialize.tjs to compatible for
-            // some patch
-#if defined(__ANDROID__)
-            __android_log_print(ANDROID_LOG_INFO, "krkr2",
-                                "Fallback startup script: system/Initialize.tjs");
-#endif
-            TVPExecuteStorage(TJS_W("system/Initialize.tjs"));
-            TVPStartupSuccess = true;
+        } else if(TVPIsExistentStorage(TJS_W("system/Initialize.tjs"))) {
+            spdlog::info("Fallback startup script: system/Initialize.tjs");
+            try {
+                TVPExecuteStorage(TJS_W("system/Initialize.tjs"));
+                TVPStartupSuccess = true;
+            } catch (const eTJS &e) {
+                spdlog::error("Exception in fallback system/Initialize.tjs: {}", e.GetMessage().AsStdString());
+                TVPAddImportantLog(ttstr(TJS_W("Exception in fallback initialize: ")) + e.GetMessage());
+                throw;
+            } catch (const std::exception &e) {
+                spdlog::error("Exception in fallback system/Initialize.tjs: {}", e.what());
+                throw;
+            } catch (...) {
+                spdlog::error("Unknown exception in fallback system/Initialize.tjs");
+                throw;
+            }
         }
         spdlog::info("Startup script ended.");
 #if defined(__ANDROID__)

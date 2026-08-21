@@ -877,6 +877,34 @@ protected:
                 return false;
         }
         return true;
+public:
+    WindowEx(iTJSDispatch2 *obj = nullptr)
+        : self(obj), menuex(nullptr), sysMenuModified(nullptr),
+          sysMenuModMap(nullptr), cachedHWND(nullptr), sysMenu(nullptr),
+          externalIcon(nullptr), hasResizing(false), hasMoving(false),
+          hasMove(false), hasNcMsMove(false), disableResize(false),
+          disableMove(false), enableNCMEvent(false), enableWinMsgHook(false),
+          ovbmp(nullptr) {
+        memset(bitHooks, 0, sizeof(bitHooks));
+    }
+
+    ~WindowEx() {
+        if (menuex) {
+            menuex->Release();
+            menuex = nullptr;
+        }
+        if (sysMenuModified) {
+            sysMenuModified->Release();
+            sysMenuModified = nullptr;
+        }
+        if (sysMenuModMap) {
+            sysMenuModMap->Release();
+            sysMenuModMap = nullptr;
+        }
+        if (ovbmp) {
+            delete ovbmp;
+            ovbmp = nullptr;
+        }
     }
 
 private:
@@ -1159,6 +1187,10 @@ struct MenuItemEx {
     }
 
     MenuItemEx(iTJSDispatch2 *_obj) : obj(_obj), id(0), rj(-1) {
+        for(int i = 0; i < BMP_MAX; i++) {
+            bmptype[i] = BMT_NONE;
+            bitmap[i] = nullptr;
+        }
         updateMenuItemID();
     }
 
