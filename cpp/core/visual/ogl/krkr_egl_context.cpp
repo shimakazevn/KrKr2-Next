@@ -12,11 +12,13 @@
 
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
+#if TARGET_OS_OSX
 #include <IOSurface/IOSurface.h>
 #include <EGL/eglext.h>
 #include <EGL/eglext_angle.h>
 #include <GLES2/gl2ext.h>
 #include <GLES2/gl2ext_angle.h>
+#endif // TARGET_OS_OSX
 #endif // __APPLE__
 
 #if defined(__ANDROID__)
