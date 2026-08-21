@@ -496,8 +496,10 @@ engine_result_t OpenGameCore(engine_handle_t handle,
     return ENGINE_RESULT_INVALID_ARGUMENT;
   }
 
-  if (!EnsureEngineRuntimeInitialized(impl->frame.surface_width,
-                                      impl->frame.surface_height,
+  const uint32_t init_w = (impl->frame.surface_width > 0) ? impl->frame.surface_width : 1;
+  const uint32_t init_h = (impl->frame.surface_height > 0) ? impl->frame.surface_height : 1;
+  if (!EnsureEngineRuntimeInitialized(init_w,
+                                      init_h,
                                       impl->render.angle_backend)) {
     std::lock_guard<std::recursive_mutex> guard(impl->mutex);
     SetHandleErrorLocked(impl, "failed to initialize engine runtime for host mode");
@@ -1850,6 +1852,16 @@ engine_result_t engine_set_render_target_iosurface(engine_handle_t handle,
   }
 
 #if defined(__APPLE__)
+#include <TargetConditionals.h>
+#if TARGET_OS_IPHONE
+  if (iosurface_id != 0) {
+    spdlog::warn("engine_set_render_target_iosurface: iOS ANGLE does not support EGL_IOSURFACE_ANGLE, ignoring");
+  }
+  impl->render.iosurface_attached = false;
+  ClearHandleErrorLocked(impl);
+  SetThreadError(nullptr);
+  return ENGINE_RESULT_OK;
+#else
   auto& egl = krkr::GetEngineEGLContext();
   if (!egl.IsValid()) {
     return SetHandleErrorAndReturnLocked(
@@ -1896,6 +1908,7 @@ engine_result_t engine_set_render_target_iosurface(engine_handle_t handle,
   ClearHandleErrorLocked(impl);
   SetThreadError(nullptr);
   return ENGINE_RESULT_OK;
+#endif // TARGET_OS_IPHONE
 #else
   (void)iosurface_id;
   (void)width;

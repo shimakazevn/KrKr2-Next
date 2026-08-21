@@ -204,8 +204,10 @@ class EngineSurfaceState extends State<EngineSurface> {
       case EngineSurfaceMode.gpuZeroCopy:
         if (Platform.isAndroid) {
           await _ensureSurfaceTexture();
-        } else {
+        } else if (Platform.isMacOS) {
           await _ensureIOSurfaceTexture();
+        } else {
+          await _ensureTexture();
         }
         break;
       case EngineSurfaceMode.texture:

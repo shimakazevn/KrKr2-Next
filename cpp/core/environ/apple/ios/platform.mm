@@ -558,3 +558,49 @@ bool TVP_utime(const char *name, time_t modtime) {
     mt[1].tv_usec = 0;
     return utimes(name, mt) == 0;
 }
+
+#include <signal.h>
+#include <execinfo.h>
+#include "MsgIntf.h"
+
+static void krkr_ios_crash_handler(int sig, siginfo_t* info, void* ctx) {
+    char buf[256];
+    snprintf(buf, sizeof(buf), "NATIVE CRASH sig=%d addr=%p", sig, info ? info->si_addr : nullptr);
+    TVPAddImportantLog(ttstr(buf));
+    spdlog::critical(buf);
+    spdlog::default_logger()->flush();
+
+    void* frames[32];
+    int n = backtrace(frames, 32);
+    char** syms = backtrace_symbols(frames, n);
+    for (int i = 0; i < n && syms; i++) {
+        TVPAddImportantLog(ttstr(syms[i]));
+        spdlog::critical("  [{}] {}", i, syms[i]);
+    }
+    if (syms) {
+        free(syms);
+    }
+    spdlog::default_logger()->flush();
+
+    signal(sig, SIG_DFL);
+    raise(sig);
+}
+
+void TVPInstallCrashHandler() {
+    struct sigaction sa{};
+    sa.sa_sigaction = krkr_ios_crash_handler;
+    sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGSEGV, &sa, nullptr);
+    sigaction(SIGABRT, &sa, nullptr);
+    sigaction(SIGILL,  &sa, nullptr);
+    sigaction(SIGBUS,  &sa, nullptr);
+    sigaction(SIGFPE,  &sa, nullptr);
+}
+
+struct tTVPIOSCrashHandlerInstaller {
+    tTVPIOSCrashHandlerInstaller() {
+        TVPInstallCrashHandler();
+    }
+} static s_ios_crash_handler_installer;
+
