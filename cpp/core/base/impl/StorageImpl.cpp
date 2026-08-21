@@ -425,10 +425,8 @@ void tTVPFileMedia::GetLocallyAccessibleName(ttstr &name) {
         prefix += tTJSNarrowStringHolder(ptr).Buf;
         static const std::vector<ttstr> &prefixPath = _getPrefixPath();
         static const std::vector<std::string> &homeDir = _getHomeDir();
-        spdlog::debug("iOS GetLocallyAccessibleName: prefix='{}', homeDir count={}", prefix, homeDir.size());
         for(int i = 0; i < (int)prefixPath.size(); ++i) {
             const std::string &dir = homeDir[i];
-            spdlog::debug("  homeDir[{}]='{}' prefixPath[{}]='{}'", i, dir, i, prefixPath[i].AsNarrowStdString());
             if(prefix.length() < dir.length())
                 continue;
             std::string actualPrefix = prefix.substr(0, dir.length());
@@ -437,7 +435,6 @@ void tTVPFileMedia::GetLocallyAccessibleName(ttstr &name) {
                 ptr += prefixPath[i].length();
                 while(*ptr && *ptr == TJS_W('/'))
                     ++ptr;
-                spdlog::debug("  iOS prefix matched! newname='{}', remaining ptr='{}'", newname.AsNarrowStdString(), tTJSNarrowStringHolder(ptr).Buf);
                 break;
             }
         }
