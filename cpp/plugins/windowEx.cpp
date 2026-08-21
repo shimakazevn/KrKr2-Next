@@ -1593,16 +1593,13 @@ struct Scripts {
     // property Scripts.outputErrorLogOnEval
     static bool setEvalErrorLog(bool v) {
         bool ret = outputErrorLogOnEval;
-        /**/ outputErrorLogOnEval = v;
+        outputErrorLogOnEval = v;
         return ret;
     }
 
-    // Scripts.eval オーバーライド
+    // Scripts.eval override using TVPExecuteExpression directly
     static tjs_error eval(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                           iTJSDispatch2 *objthis) {
-        if(outputErrorLogOnEval)
-            return evalOrig->FuncCall(0, nullptr, nullptr, r, n, p, objthis);
-
         if(n < 1)
             return TJS_E_BADPARAMCOUNT;
         ttstr content = *p[0], name;
@@ -1612,39 +1609,18 @@ struct Scripts {
         if(n >= 3)
             lineofs = *p[2];
 
-        TVPExecuteExpression(content, name, lineofs, r);
+        try {
+            TVPExecuteExpression(content, name, lineofs, r);
+        } catch(...) {
+            if(outputErrorLogOnEval) throw;
+        }
         return TJS_S_OK;
     }
-
-    // 元の Scripts.eval を保存・復帰
-    static void Regist() {
-        tTJSVariant var;
-        TVPExecuteExpression(TJS_W("Scripts.eval"), &var);
-        evalOrig = var.AsObject();
-    }
-
-    static void UnRegist() {
-        if(evalOrig)
-            evalOrig->Release();
-        evalOrig = nullptr;
-    }
-
-    static iTJSDispatch2 *evalOrig;
 };
 
-iTJSDispatch2 *Scripts::evalOrig = nullptr; // Scripts.evalの元のオブジェクト
 bool Scripts::outputErrorLogOnEval = true; // 切り替えフラグ
 
 // Scriptsに関数を追加
 NCB_ATTACH_FUNCTION(eval, Scripts, Scripts::eval);
 NCB_ATTACH_FUNCTION(setEvalErrorLog, Scripts, Scripts::setEvalErrorLog);
 
-////////////////////////////////////////////////////////////////
-// コールバック指定
-
-static void PreRegistCallback() { Scripts::Regist(); }
-
-static void PostUnregistCallback() { Scripts::UnRegist(); }
-
-NCB_PRE_REGIST_CALLBACK(PreRegistCallback);
-NCB_POST_UNREGIST_CALLBACK(PostUnregistCallback);
