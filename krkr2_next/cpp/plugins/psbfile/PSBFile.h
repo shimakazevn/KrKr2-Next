@@ -109,5 +109,8 @@ namespace PSB {
 
             return this->_type;
         }
+        
+        // Cache for string loading to avoid O(N^2) std::find_if
+        std::unordered_map<std::uint32_t, size_t> _stringSearchCache;
     };
 } // namespace PSB

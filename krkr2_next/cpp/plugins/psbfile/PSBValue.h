@@ -221,12 +221,34 @@ namespace PSB {
             stream->Read(buffer.get(),
                          shouldBeLength); // WARN: the actual buffer.Length >=
                                           // shouldBeLength
-            for(int i = 0; i < count; i++) {
-                std::uint32_t result = 0;
-                for(std::uint8_t j = 0; j < entryLength; ++j) {
-                    result |= buffer.get()[i * entryLength + j] << j * 8;
+                                          
+            if (entryLength == 1) {
+                for(int i = 0; i < count; i++) {
+                    value.push_back(buffer[i]);
                 }
-                value.push_back(result);
+            } else if (entryLength == 2) {
+                auto* ptr16 = reinterpret_cast<const std::uint16_t*>(buffer.get());
+                for(int i = 0; i < count; i++) {
+                    value.push_back(ptr16[i]);
+                }
+            } else if (entryLength == 3) {
+                for(int i = 0; i < count; i++) {
+                    const auto* ptr = buffer.get() + i * 3;
+                    value.push_back(ptr[0] | (ptr[1] << 8) | (ptr[2] << 16));
+                }
+            } else if (entryLength == 4) {
+                auto* ptr32 = reinterpret_cast<const std::uint32_t*>(buffer.get());
+                for(int i = 0; i < count; i++) {
+                    value.push_back(ptr32[i]);
+                }
+            } else {
+                for(int i = 0; i < count; i++) {
+                    std::uint32_t result = 0;
+                    for(std::uint8_t j = 0; j < entryLength; ++j) {
+                        result |= buffer.get()[i * entryLength + j] << j * 8;
+                    }
+                    value.push_back(result);
+                }
             }
         }
 

@@ -24,6 +24,7 @@ namespace PSB {
 
         stringOffsets = PSBArray();
         strings.clear();
+        _stringSearchCache.clear(); // [OPTIMIZATION] clear string cache
 
         chunkOffsets = PSBArray();
         chunkLengths = PSBArray();
@@ -71,26 +72,23 @@ namespace PSB {
     void PSBFile::loadString(std::unique_ptr<PSB::PSBString> &str,
                              TJS::tTJSBinaryStream *stream) {
         assert(str->index.has_value() && "Index can not be null");
-        auto idx = str->index;
-        const auto refStr = std::find_if(
-            strings.begin(), strings.end(),
-            [idx](const PSB::PSBString &s) { return s.index == idx; });
-
-        stream->SetPosition(_header.offsetStringsData +
-                            stringOffsets[static_cast<int>(idx.value())]);
-        auto strValue = PSB::Extension::readStringZeroTrim(stream);
-
-        // Strict value equal check
-        if(refStr != strings.end() && strValue == refStr->value) {
-            str = std::make_unique<PSBString>(*refStr);
+        auto idx = str->index.value();
+        
+        // [OPTIMIZATION]: Use a hash map cache instead of std::find_if to turn O(N^2) search into O(1)
+        auto cacheIt = _stringSearchCache.find(idx);
+        if (cacheIt != _stringSearchCache.end()) {
+            str = std::make_unique<PSBString>(strings[cacheIt->second]);
             return;
         }
 
-        if(refStr != strings.end()) {
-            LOGGER->info("{} does not match {}", refStr->value, strValue);
-        }
+        stream->SetPosition(_header.offsetStringsData +
+                            stringOffsets[static_cast<int>(idx)]);
+        auto strValue = PSB::Extension::readStringZeroTrim(stream);
 
         str->value = strValue;
+        
+        // Save to vector and map cache
+        _stringSearchCache[idx] = strings.size();
         strings.emplace_back(*str);
     }
 
