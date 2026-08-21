@@ -711,9 +711,12 @@ struct WindowEx {
 
     // ネイティブインスタンスの生成・破棄にあわせてレシーバを登録・解除する
     WindowEx(iTJSDispatch2 *obj) :
-        self(obj), menuex(0), sysMenuModified(0), sysMenuModMap(0),
+        self(obj), menuex(nullptr), sysMenuModified(nullptr), sysMenuModMap(nullptr),
+        cachedHWND(nullptr), sysMenu(nullptr), externalIcon(nullptr),
+        hasResizing(false), hasMoving(false), hasMove(false), hasNcMsMove(false),
         disableResize(false), disableMove(false), enableNCMEvent(false),
-        enableWinMsgHook(false) {
+        enableWinMsgHook(false), ovbmp(nullptr) {
+        memset(bitHooks, 0, sizeof(bitHooks));
         regist(true);
         setMessageHookAll(false);
     }
@@ -877,34 +880,6 @@ protected:
                 return false;
         }
         return true;
-public:
-    WindowEx(iTJSDispatch2 *obj = nullptr)
-        : self(obj), menuex(nullptr), sysMenuModified(nullptr),
-          sysMenuModMap(nullptr), cachedHWND(nullptr), sysMenu(nullptr),
-          externalIcon(nullptr), hasResizing(false), hasMoving(false),
-          hasMove(false), hasNcMsMove(false), disableResize(false),
-          disableMove(false), enableNCMEvent(false), enableWinMsgHook(false),
-          ovbmp(nullptr) {
-        memset(bitHooks, 0, sizeof(bitHooks));
-    }
-
-    ~WindowEx() {
-        if (menuex) {
-            menuex->Release();
-            menuex = nullptr;
-        }
-        if (sysMenuModified) {
-            sysMenuModified->Release();
-            sysMenuModified = nullptr;
-        }
-        if (sysMenuModMap) {
-            sysMenuModMap->Release();
-            sysMenuModMap = nullptr;
-        }
-        if (ovbmp) {
-            delete ovbmp;
-            ovbmp = nullptr;
-        }
     }
 
 private:
