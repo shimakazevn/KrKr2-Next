@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "org.github.krkr2.flutter_app"
-    compileSdk = 36
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.14206865"
 
     compileOptions {
@@ -25,7 +25,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = 36
+        targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
