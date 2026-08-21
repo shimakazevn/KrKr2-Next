@@ -245,6 +245,7 @@ static tjs_error Player_setEnableD3D(tTJSVariant *, tjs_int count, tTJSVariant *
 static tjs_error Player_setVariable(tTJSVariant *r, tjs_int count, tTJSVariant **p,
                                     iTJSDispatch2 *objthis) {
     auto *player = ncbInstanceAdaptor<motion::Player>::GetNativeInstance(objthis);
+    if(!player) player = ncbInstanceAdaptor<motion::EmotePlayer>::GetNativeInstance(objthis);
     if(!player || count < 2) return TJS_E_INVALIDPARAM;
     player->setVariable(ttstr(*p[0]), *p[1]);
     if(r) *r = tTJSVariant();
@@ -254,13 +255,16 @@ static tjs_error Player_setVariable(tTJSVariant *r, tjs_int count, tTJSVariant *
 static tjs_error Player_getVariable(tTJSVariant *r, tjs_int count, tTJSVariant **p,
                                     iTJSDispatch2 *objthis) {
     auto *player = ncbInstanceAdaptor<motion::Player>::GetNativeInstance(objthis);
+    if(!player) player = ncbInstanceAdaptor<motion::EmotePlayer>::GetNativeInstance(objthis);
     if(!player || count < 1) return TJS_E_INVALIDPARAM;
     if(r) *r = player->getVariable(ttstr(*p[0]));
     return TJS_S_OK;
 }
 
 static motion::Player *GetPlayerInstance(iTJSDispatch2 *objthis) {
-    return ncbInstanceAdaptor<motion::Player>::GetNativeInstance(objthis);
+    auto *player = ncbInstanceAdaptor<motion::Player>::GetNativeInstance(objthis);
+    if(!player) player = ncbInstanceAdaptor<motion::EmotePlayer>::GetNativeInstance(objthis);
+    return player;
 }
 
 static tjs_error Player_getPlaying(tTJSVariant *r, tjs_int, tTJSVariant **,
@@ -530,9 +534,45 @@ NCB_REGISTER_SUBCLASS_DELAY(Player) {
     NCB_METHOD_RAW_CALLBACK(getVariable, Player_getVariable, 0);
 }
 
+static tjs_error EmotePlayer_getMaskMode(tTJSVariant *r, tjs_int, tTJSVariant **, iTJSDispatch2 *objthis) {
+    auto *player = ncbInstanceAdaptor<motion::EmotePlayer>::GetNativeInstance(objthis);
+    if(r) *r = tTJSVariant(player ? player->getMaskMode() : 0);
+    return TJS_S_OK;
+}
+static tjs_error EmotePlayer_setMaskMode(tTJSVariant *, tjs_int count, tTJSVariant **p, iTJSDispatch2 *objthis) {
+    auto *player = ncbInstanceAdaptor<motion::EmotePlayer>::GetNativeInstance(objthis);
+    if(player && count >= 1) player->setMaskMode((tjs_int)*p[0]);
+    return TJS_S_OK;
+}
+
 NCB_REGISTER_SUBCLASS_DELAY(EmotePlayer) {
     NCB_CONSTRUCTOR((ResourceManager));
     NCB_PROPERTY(useD3D, getUseD3D, setUseD3D);
+    NCB_PROPERTY_RAW_CALLBACK(maskMode, EmotePlayer_getMaskMode, EmotePlayer_setMaskMode, 0);
+
+    // Reuse Player methods since EmotePlayer inherits from Player and GetPlayerInstance supports it
+    NCB_PROPERTY_RAW_CALLBACK_RO(playing, Player_getPlaying, 0);
+    NCB_PROPERTY_RAW_CALLBACK_RO(allplaying, Player_getAllplaying, 0);
+    NCB_PROPERTY_RAW_CALLBACK(motion, Player_getMotion, Player_setMotion, 0);
+    NCB_PROPERTY_RAW_CALLBACK(chara, Player_getChara, Player_setChara, 0);
+    NCB_PROPERTY_RAW_CALLBACK(tickCount, Player_getTickCount, Player_setTickCount, 0);
+    NCB_PROPERTY_RAW_CALLBACK(lastTime, Player_getLastTime, Player_setLastTime, 0);
+    NCB_PROPERTY_RAW_CALLBACK(speed, Player_getSpeed, Player_setSpeed, 0);
+    NCB_PROPERTY_RAW_CALLBACK(completionType, Player_getCompletionType, Player_setCompletionType, 0);
+    NCB_METHOD_RAW_CALLBACK(play, Player_play, 0);
+    NCB_METHOD_RAW_CALLBACK(stop, Player_stop, 0);
+    NCB_METHOD_RAW_CALLBACK(progress, Player_progress, 0);
+    NCB_METHOD_RAW_CALLBACK(skipToSync, Player_skipToSync, 0);
+    NCB_METHOD_RAW_CALLBACK(setDrawAffineTranslateMatrix, Player_setDrawAffineTranslateMatrix, 0);
+    NCB_METHOD_RAW_CALLBACK(setCoord, Player_setCoord, 0);
+    NCB_METHOD_RAW_CALLBACK(contains, Player_contains, 0);
+    NCB_METHOD_RAW_CALLBACK(getCommandList, Player_getCommandList, 0);
+    NCB_METHOD_RAW_CALLBACK(getLayerMotion, Player_getLayerMotion, 0);
+    NCB_METHOD_RAW_CALLBACK(getLayerGetter, Player_getLayerGetter, 0);
+    NCB_METHOD_RAW_CALLBACK(clear, Player_clear, 0);
+    NCB_METHOD_RAW_CALLBACK(draw, Player_draw, 0);
+    NCB_METHOD_RAW_CALLBACK(setVariable, Player_setVariable, 0);
+    NCB_METHOD_RAW_CALLBACK(getVariable, Player_getVariable, 0);
 }
 
 static tjs_error ResourceManager_unload(tTJSVariant *, tjs_int count, tTJSVariant **p,

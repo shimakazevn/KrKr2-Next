@@ -4,24 +4,24 @@
 #pragma once
 
 #include "ResourceManager.h"
+#include "Player.h"
 
 namespace motion {
 
     enum class MaskMode { MaskModeAlpha };
 
-    class EmotePlayer {
+    class EmotePlayer : public Player {
     public:
-        explicit EmotePlayer(ResourceManager rm) {}
+        explicit EmotePlayer(ResourceManager rm) : Player() {}
 
         void initPhysics() {}
 
-        void setUseD3D(bool useD3D) { this->_useD3D = useD3D; }
+        void setMaskMode(tjs_int mode) { this->_maskMode = static_cast<MaskMode>(mode); }
 
-        [[nodiscard]] bool getUseD3D() const { return this->_useD3D; }
+        [[nodiscard]] tjs_int getMaskMode() const { return static_cast<tjs_int>(this->_maskMode); }
 
     private:
-        bool _useD3D;
-        MaskMode _maskMode;
+        MaskMode _maskMode = MaskMode::MaskModeAlpha;
     };
 
 } // namespace motion

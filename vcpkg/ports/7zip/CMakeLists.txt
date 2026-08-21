@@ -410,11 +410,13 @@ target_compile_definitions(7zip
         -D_LARGEFILE_SOURCE
         -DEXTERNAL_CODECS
         -D_7ZIP_BUILD_NO_ARM_CRC
-        -D__ARM_FEATURE_CRC32=0
-        -D__ARM_ACLE=0
         -DUNICODE
         -D_UNICODE
 )
+
+if (VCPKG_TARGET_IS_ANDROID AND VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
+    target_compile_options(7zip PRIVATE "-msse4.2")
+endif()
 
 target_include_directories(7zip
     INTERFACE
