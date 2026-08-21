@@ -162,11 +162,11 @@ public:
 
                 // 读压缩大小和解压大小
                 std::uint8_t *ptr = raw.data() + 5;
-                std::uint64_t compressed =
-                    *reinterpret_cast<std::uint64_t *>(ptr);
+                std::uint64_t compressed = 0;
+                memcpy(&compressed, ptr, 8);
                 ptr += 8;
-                std::uint64_t uncompressed =
-                    *reinterpret_cast<std::uint64_t *>(ptr);
+                std::uint64_t uncompressed = 0;
+                memcpy(&uncompressed, ptr, 8);
                 ptr += 8;
 
                 std::vector<std::uint8_t> compBuf(compressed);

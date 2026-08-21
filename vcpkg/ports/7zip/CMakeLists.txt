@@ -409,10 +409,13 @@ target_compile_definitions(7zip
         -D_FILE_OFFSET_BITS=64
         -D_LARGEFILE_SOURCE
         -DEXTERNAL_CODECS
-        -D_7ZIP_BUILD_NO_ARM_CRC
         -DUNICODE
         -D_UNICODE
 )
+
+if (APPLE AND (VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64" OR VCPKG_TARGET_ARCHITECTURE STREQUAL "arm"))
+    target_compile_definitions(7zip PUBLIC -D_7ZIP_BUILD_NO_ARM_CRC)
+endif()
 
 if (VCPKG_TARGET_IS_ANDROID AND VCPKG_TARGET_ARCHITECTURE STREQUAL "x64")
     target_compile_options(7zip PRIVATE "-msse4.2")

@@ -204,9 +204,10 @@ namespace PSB {
                 throw std::runtime_error("PSBArray bad length type size");
             }
 
-            std::uint32_t count{};
-            stream->ReadBuffer(&count, n);
-            if(count > INT32_MAX) {
+            std::uint64_t count_64 = 0;
+            stream->ReadBuffer(&count_64, n);
+            std::uint32_t count = static_cast<std::uint32_t>(count_64);
+            if(count_64 > INT32_MAX) {
                 throw std::runtime_error("Long array is not supported yet");
             }
 
