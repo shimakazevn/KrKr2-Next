@@ -678,6 +678,12 @@ const std::vector<std::string> &TVPGetApplicationHomeDirectory() {
             std::string dir = TVPNativeProjectDir.AsNarrowStdString();
             while (!dir.empty() && dir.back() == '/')
                 dir.pop_back();
+
+            std::error_code ec;
+            if (std::filesystem::is_regular_file(dir, ec)) {
+                dir = std::filesystem::path(dir).parent_path().string();
+            }
+
             s_appHomeDirs.push_back(dir);
         } else {
             s_appHomeDirs.push_back(std::filesystem::current_path().string());
