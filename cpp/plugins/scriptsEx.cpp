@@ -992,8 +992,8 @@ NCB_ATTACH_CLASS(ScriptsAdd, Scripts) {
                 TJS_STATICMEMBER);
     NCB_METHOD(clone);
 
-    RawCallback("propSet", &ScriptsAdd::propSet, TJS_STATICMEMBER);
-    RawCallback("propGet", &ScriptsAdd::propGet, TJS_STATICMEMBER);
+    RawCallback(TJS_W("propSet"), &ScriptsAdd::propSet, TJS_STATICMEMBER);
+    RawCallback(TJS_W("propGet"), &ScriptsAdd::propGet, TJS_STATICMEMBER);
     Variant(TJS_W("pfMemberEnsure"), TJS_MEMBERENSURE);
     Variant(TJS_W("pfMemberMustExist"), TJS_MEMBERMUSTEXIST);
     Variant(TJS_W("pfIgnoreProp"), TJS_IGNOREPROP);
