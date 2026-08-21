@@ -562,6 +562,7 @@ bool TVP_utime(const char *name, time_t modtime) {
 #include <signal.h>
 #include <execinfo.h>
 #include "MsgIntf.h"
+#include "DebugIntf.h"
 
 static void krkr_ios_crash_handler(int sig, siginfo_t* info, void* ctx) {
     char buf[256];
