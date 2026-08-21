@@ -298,7 +298,7 @@ public:
                 iTJSDispatch2 *fields = TJSCreateArrayObject();
                 split(fields);
                 if(result) {
-                    result->SetObject(fields, fields);
+                    *result = tTJSVariant(fields, fields);
                 }
                 fields->Release();
                 ret = true;

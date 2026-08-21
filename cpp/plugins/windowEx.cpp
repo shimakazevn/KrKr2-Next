@@ -409,18 +409,21 @@ struct WindowEx {
         tjs_int top = ncbPropAcc.getIntValue(TJS_W("top"));
         tjs_int width = ncbPropAcc.getIntValue(TJS_W("width"));
         tjs_int height = ncbPropAcc.getIntValue(TJS_W("height"));
+        if(width <= 0) width = tTVPScreen::GetDesktopWidth();
+        if(height <= 0) height = tTVPScreen::GetDesktopHeight();
         tTVPRect rect{ left, top, width + left, height + top };
 
-        ncbDictionaryAccessor ncbDictAcc;
-
-        ncbDictAcc.SetValue(TJS_W("x"), rect.left);
-        ncbDictAcc.SetValue(TJS_W("y"), rect.top);
-        auto w = rect.right - rect.left;
-        ncbDictAcc.SetValue(TJS_W("w"), w);
-        auto h = rect.bottom - rect.top;
-        ncbDictAcc.SetValue(TJS_W("h"), h);
-        auto *dis = ncbDictAcc.GetDispatch();
-        r->SetObject(dis, dis);
+        if(r != nullptr) {
+            ncbDictionaryAccessor ncbDictAcc;
+            ncbDictAcc.SetValue(TJS_W("x"), rect.left);
+            ncbDictAcc.SetValue(TJS_W("y"), rect.top);
+            auto w = rect.right - rect.left;
+            ncbDictAcc.SetValue(TJS_W("w"), w);
+            auto h = rect.bottom - rect.top;
+            ncbDictAcc.SetValue(TJS_W("h"), h);
+            auto *dis = ncbDictAcc.GetDispatch();
+            *r = tTJSVariant(dis, dis);
+        }
 
         return TJS_S_OK;
     }
@@ -1310,6 +1313,15 @@ struct ConsoleEx {
     // getRect
     static tjs_error getRect(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                              iTJSDispatch2 *obj) {
+        if(r) {
+            ncbDictionaryAccessor dict;
+            dict.SetValue(TJS_W("x"), 0);
+            dict.SetValue(TJS_W("y"), 0);
+            dict.SetValue(TJS_W("w"), 800);
+            dict.SetValue(TJS_W("h"), 600);
+            auto *dis = dict.GetDispatch();
+            *r = tTJSVariant(dis, dis);
+        }
         return TJS_S_OK;
     }
 
@@ -1327,6 +1339,13 @@ struct ConsoleEx {
 
     static tjs_error getPlacement(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                                   iTJSDispatch2 *obj) {
+        if(r) {
+            ncbDictionaryAccessor dict;
+            dict.SetValue(TJS_W("showCmd"), 1);
+            dict.SetValue(TJS_W("flags"), 0);
+            auto *dis = dict.GetDispatch();
+            *r = tTJSVariant(dis, dis);
+        }
         return TJS_S_OK;
     }
 
@@ -1448,9 +1467,8 @@ struct System {
 
             iTJSDispatch2 *arr = TJSCreateArrayObject();
             tTJSVariant monVar(monDict.GetDispatch(), monDict.GetDispatch());
-            tTJSVariant idx(0);
             arr->PropSetByNum(TJS_MEMBERENSURE, 0, &monVar, arr);
-            result->SetObject(arr, arr);
+            *result = tTJSVariant(arr, arr);
             arr->Release();
         }
         return TJS_S_OK;
@@ -1472,7 +1490,7 @@ struct System {
             monDict.SetValue(TJS_W("w"), w);
             monDict.SetValue(TJS_W("h"), h);
 
-            // Create 'work' rect dict (same as monitor on macOS)
+            // Create 'work' rect dict (same as monitor on macOS/iOS)
             ncbDictionaryAccessor workDict;
             workDict.SetValue(TJS_W("x"), 0);
             workDict.SetValue(TJS_W("y"), 0);
@@ -1487,13 +1505,20 @@ struct System {
             resultDict.SetValue(TJS_W("work"), workVar);
 
             auto *dis = resultDict.GetDispatch();
-            result->SetObject(dis, dis);
+            *result = tTJSVariant(dis, dis);
         }
         return TJS_S_OK;
     }
 
     static tjs_error getCursorPos(tTJSVariant *r, tjs_int n, tTJSVariant **p,
                                   iTJSDispatch2 *obj) {
+        if(r) {
+            ncbDictionaryAccessor dict;
+            dict.SetValue(TJS_W("x"), 0);
+            dict.SetValue(TJS_W("y"), 0);
+            auto *dis = dict.GetDispatch();
+            *r = tTJSVariant(dis, dis);
+        }
         return TJS_S_OK;
     }
 
@@ -1512,32 +1537,26 @@ struct System {
         if(p[0]->Type() != tvtString)
             return TJS_E_INVALIDPARAM;
         ttstr key(p[0]->AsStringNoAddRef());
-        if(key == TJS_W(""))
-            return TJS_E_INVALIDPARAM;
         key.ToUpperCase();
 
-        tTJSVariant tmp;
-        iTJSDispatch2 *obj = TVPGetScriptDispatch();
-        bool hasval = TJS_SUCCEEDED(
-            obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("System"), 0, &tmp, obj));
-        obj->Release();
-        if(!hasval)
-            return TJS_E_FAIL;
-
-        obj = tmp.AsObjectNoAddRef();
-        tmp.Clear();
-        if(TJS_FAILED(obj->PropGet(TJS_MEMBERMUSTEXIST, TJS_W("metrics"), 0,
-                                   &tmp, obj))) {
-            ncbDictionaryAccessor dict;
-            tmp = dict;
-            if(TJS_FAILED(obj->PropSet(TJS_MEMBERENSURE, TJS_W("metrics"), 0,
-                                       &tmp, obj)))
-                return TJS_E_FAIL;
+        tjs_int val = 0;
+        if(key == TJS_W("SM_CXSCREEN") || key == TJS_W("SM_CXVIRTUALSCREEN")) {
+            val = tTVPScreen::GetDesktopWidth();
+        } else if(key == TJS_W("SM_CYSCREEN") || key == TJS_W("SM_CYVIRTUALSCREEN")) {
+            val = tTVPScreen::GetDesktopHeight();
+        } else if(key == TJS_W("SM_XVIRTUALSCREEN") || key == TJS_W("SM_YVIRTUALSCREEN")) {
+            val = 0;
+        } else if(key == TJS_W("SM_CXSIZEFRAME") || key == TJS_W("SM_CYSIZEFRAME") || key == TJS_W("SM_CXEDGE") || key == TJS_W("SM_CYEDGE")) {
+            val = 4;
+        } else if(key == TJS_W("SM_CYCAPTION")) {
+            val = 24;
+        } else if(key == TJS_W("SM_CYMENU")) {
+            val = 20;
         }
-        ncbPropAccessor metrics(tmp);
-        tjs_int num = metrics.getIntValue(key.c_str(), -1);
-        if(num < 0)
-            return TJS_E_INVALIDPARAM;
+
+        if(r) {
+            *r = val;
+        }
         return TJS_S_OK;
     }
 
@@ -1545,11 +1564,9 @@ struct System {
                                   iTJSDispatch2 *objthis) {
         if(n < 1)
             return TJS_E_BADPARAMCOUNT;
-        if(p[0]->Type() != tvtString)
-            return TJS_E_INVALIDPARAM;
-        ttstr name(p[0]->AsStringNoAddRef());
-        if(name == TJS_W(""))
-            return TJS_E_INVALIDPARAM;
+        if(r) {
+            *r = ttstr(TJS_W(""));
+        }
         return TJS_S_OK;
     }
 
@@ -1557,6 +1574,9 @@ struct System {
                                      iTJSDispatch2 *objthis) {
         if(n < 1)
             return TJS_E_BADPARAMCOUNT;
+        if(r) {
+            *r = (n > 0 && p[0]) ? *p[0] : tTJSVariant(ttstr(TJS_W("")));
+        }
         return TJS_S_OK;
     }
 
