@@ -17,6 +17,8 @@ else()
             general/DrawPath.cpp
     )
 
+    # Workaround for vcpkg libgdiplus missing include directory
+    file(MAKE_DIRECTORY "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/include")
     find_package(libgdiplus CONFIG REQUIRED)
     target_link_libraries(${PROJECT_NAME} PRIVATE libgdiplus::libgdiplus)
 

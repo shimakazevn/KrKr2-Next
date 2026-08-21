@@ -182,9 +182,12 @@ public:
         const tjs_uint th = tex->GetHeight();
         if (tw == 0 || th == 0) return;
 
-        EnsureBlitResources();
-
         auto& egl = krkr::GetEngineEGLContext();
+        if (!egl.IsValid()) {
+            return; // EGL context isn't ready or failed to initialize
+        }
+
+        EnsureBlitResources();
 
         // ── Phase 1: Prepare the blit source texture ──────────────
         // This MUST happen BEFORE BindRenderTarget(), because
@@ -686,7 +689,16 @@ const std::vector<std::string> &TVPGetApplicationHomeDirectory() {
 
             s_appHomeDirs.push_back(dir);
         } else {
-            s_appHomeDirs.push_back(std::filesystem::current_path().string());
+            try {
+                s_appHomeDirs.push_back(std::filesystem::current_path().string());
+            } catch (const std::filesystem::filesystem_error& e) {
+                spdlog::warn("TVPGetApplicationHomeDirectory: current_path() failed: {}", e.what());
+#if defined(__APPLE__)
+                s_appHomeDirs.push_back(getenv("HOME") ? std::string(getenv("HOME")) + "/Documents" : "/");
+#else
+                s_appHomeDirs.push_back("/");
+#endif
+            }
         }
     }
     return s_appHomeDirs;
