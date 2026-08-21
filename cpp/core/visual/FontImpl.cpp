@@ -15,6 +15,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+extern bool TVPEncodeUTF8ToUTF16(ttstr &output, const std::string &source);
+
 #include <fstream>
 #include <vector>
 #include "StorageImpl.h"
@@ -128,7 +130,13 @@ static int TVPInternalEnumFonts(
                 addCount = 1;
             }
             /*if (!addCount)*/ {
-                ttstr fontname((tjs_nchar *)fontface->family_name);
+                ttstr fontname;
+                if(fontface->family_name) {
+                    TVPEncodeUTF8ToUTF16(fontname, std::string(fontface->family_name));
+                }
+                if(fontname.IsEmpty()) {
+                    fontname = ttstr((tjs_nchar *)fontface->family_name); // fallback
+                }
                 TVPFontNamePathInfo info;
                 info.Path = FontPath;
                 info.Index = i;
