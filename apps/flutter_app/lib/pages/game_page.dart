@@ -103,6 +103,9 @@ class _GamePageState extends State<GamePage> with WidgetsBindingObserver {
       unawaited(_savePendingPlaySession());
     }
     WidgetsBinding.instance.addObserver(this);
+    if (Platform.isAndroid || Platform.isIOS) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    }
     _forceLandscape = widget.forceLandscape;
     _bridge = widget.engineBridgeBuilder(ffiLibraryPath: widget.ffiLibraryPath);
     _loadSettings();
@@ -198,6 +201,9 @@ class _GamePageState extends State<GamePage> with WidgetsBindingObserver {
     _stopMemoryStatsPolling();
     _bootLogScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
+    if (Platform.isAndroid || Platform.isIOS) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
     _stopTickLoop(notify: false);
     unawaited(_bridge.engineDestroy());
     _restoreOrientation();
@@ -410,9 +416,13 @@ class _GamePageState extends State<GamePage> with WidgetsBindingObserver {
     normalizedGamePath = await _adjustGamePathForAndroid(normalizedGamePath);
     
     // AUTO-MOUNT data.xp3 if the user selected a directory that contains data.xp3 but no startup.tjs
-    if (!File('$normalizedGamePath/startup.tjs').existsSync() && 
-        !File('$normalizedGamePath/data/system/Initialize.tjs').existsSync() && 
-        File('$normalizedGamePath/data.xp3').existsSync()) {
+    final hasStartup = File('$normalizedGamePath/startup.tjs').existsSync() ||
+        File('$normalizedGamePath/Startup.tjs').existsSync() ||
+        File('$normalizedGamePath/STARTUP.TJS').existsSync();
+    final hasDataInit = File('$normalizedGamePath/data/system/Initialize.tjs').existsSync() ||
+        File('$normalizedGamePath/data/system/initialize.tjs').existsSync();
+    final hasDataXp3 = File('$normalizedGamePath/data.xp3').existsSync();
+    if (!hasStartup && !hasDataInit && hasDataXp3) {
       normalizedGamePath = '$normalizedGamePath/data.xp3';
       _log('Auto-adjusted path to data.xp3 because directory has no startup.tjs');
     }
@@ -1133,18 +1143,22 @@ class _GamePageState extends State<GamePage> with WidgetsBindingObserver {
               ),
             ),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white10,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: SelectableText(
-                _errorMessage ?? 'Unknown error',
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 13,
-                  fontFamily: 'monospace',
+            Flexible(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: SingleChildScrollView(
+                  child: SelectableText(
+                    _errorMessage ?? 'Unknown error',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
                 ),
               ),
             ),
