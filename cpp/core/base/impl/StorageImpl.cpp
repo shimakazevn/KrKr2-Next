@@ -582,8 +582,7 @@ bool TVPRemoveFolder(const ttstr &name) {
 // TVPGetAppPath
 //---------------------------------------------------------------------------
 ttstr TVPGetAppPath() {
-    static ttstr apppath(TVPExtractStoragePath(TVPProjectDir));
-    return apppath;
+    return TVPExtractStoragePath(TVPProjectDir);
 }
 //---------------------------------------------------------------------------
 
@@ -1542,6 +1541,18 @@ void TVPAutoMountSiblingXP3Archives() {
     closedir(dirp);
 
     std::sort(xp3Names.begin(), xp3Names.end());
+
+    // Ensure patch3.xp3 (or highest translation patch) is mounted last for highest priority
+    auto patch3It = std::find_if(xp3Names.begin(), xp3Names.end(), [](const std::string &n) {
+        std::string lower = n;
+        for(auto &c : lower) c = (char)tolower((unsigned char)c);
+        return lower == "patch3.xp3";
+    });
+    if(patch3It != xp3Names.end()) {
+        std::string p3 = *patch3It;
+        xp3Names.erase(patch3It);
+        xp3Names.push_back(p3);
+    }
 
     if(xp3Names.empty()) {
         TVPAddImportantLog(TJS_W("(info) No sibling XP3 archives found"));

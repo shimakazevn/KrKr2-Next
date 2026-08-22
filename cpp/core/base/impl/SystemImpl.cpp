@@ -928,8 +928,7 @@ TJS_DENY_NATIVE_PROP_SETTER
 TJS_END_NATIVE_STATIC_PROP_DECL_OUTER(cls, dataPath)
 //----------------------------------------------------------------------
 TJS_BEGIN_NATIVE_PROP_DECL(exeName){ TJS_BEGIN_NATIVE_PROP_GETTER{
-    static ttstr exename(TVPNormalizeStorageName(ExePath()));
-*result = exename;
+    *result = TVPNormalizeStorageName(ExePath());
 return TJS_S_OK;
 }
 TJS_END_NATIVE_PROP_GETTER

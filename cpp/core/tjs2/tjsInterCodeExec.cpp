@@ -1452,6 +1452,10 @@ namespace TJS {
         }
 
         tTJSVariantClosure clo = ra_code2->AsObjectClosureNoAddRef();
+        if(!clo.Object || (uintptr_t)clo.Object < (uintptr_t)0x10000) {
+            TJS_GET_VM_REG_ADDR(ra, code[1])->Clear();
+            return;
+        }
         tTJSVariant *name = TJS_GET_VM_REG_ADDR(DataArea, code[3]);
         tjs_error hr =
             clo.PropGet(flags, name->GetString(), name->GetHint(),
@@ -1482,6 +1486,9 @@ namespace TJS {
         }
 
         tTJSVariantClosure clo = ra_code1->AsObjectClosureNoAddRef();
+        if(!clo.Object || (uintptr_t)clo.Object < (uintptr_t)0x10000) {
+            return;
+        }
         tTJSVariant *name = TJS_GET_VM_REG_ADDR(DataArea, code[2]);
         tjs_error hr = clo.PropSetByVS(
             flags, name->AsStringNoAddRef(), TJS_GET_VM_REG_ADDR(ra, code[3]),
@@ -1506,6 +1513,10 @@ namespace TJS {
         }
         tTJSVariantClosure clo =
             TJS_GET_VM_REG_ADDR(ra, code[2])->AsObjectClosureNoAddRef();
+        if(!clo.Object || (uintptr_t)clo.Object < (uintptr_t)0x10000) {
+            TJS_GET_VM_REG_ADDR(ra, code[1])->Clear();
+            return;
+        }
         tjs_error hr =
             clo.PropGet(0, nullptr, nullptr, TJS_GET_VM_REG_ADDR(ra, code[1]),
                         clo.ObjThis ? clo.ObjThis : ra[-1].AsObjectNoAddRef());
@@ -1519,6 +1530,9 @@ namespace TJS {
         // * ra[code[1]] = ra[code[2]]
         tTJSVariantClosure clo =
             TJS_GET_VM_REG_ADDR(ra, code[1])->AsObjectClosureNoAddRef();
+        if(!clo.Object || (uintptr_t)clo.Object < (uintptr_t)0x10000) {
+            return;
+        }
         tjs_error hr =
             clo.PropSet(0, nullptr, nullptr, TJS_GET_VM_REG_ADDR(ra, code[2]),
                         clo.ObjThis ? clo.ObjThis : ra[-1].AsObjectNoAddRef());
@@ -1551,6 +1565,10 @@ namespace TJS {
 
         tjs_error hr;
         tTJSVariantClosure clo = ra_code2->AsObjectClosureNoAddRef();
+        if(!clo.Object || (uintptr_t)clo.Object < (uintptr_t)0x10000) {
+            TJS_GET_VM_REG_ADDR(ra, code[1])->Clear();
+            return;
+        }
         tTJSVariant *ra_code3 = TJS_GET_VM_REG_ADDR(ra, code[3]);
         if(ra_code3->Type() != tvtInteger) {
             tTJSVariantString *str = ra_code3->AsString();
@@ -1601,6 +1619,10 @@ namespace TJS {
         }
 
         tTJSVariantClosure clo = ra_code1->AsObjectClosure();
+        if(!clo.Object || (uintptr_t)clo.Object < (uintptr_t)0x10000) {
+            clo.Release();
+            return;
+        }
         tTJSVariant *ra_code2 = TJS_GET_VM_REG_ADDR(ra, code[2]);
         if(ra_code2->Type() != tvtInteger) {
             tTJSVariantString *str;

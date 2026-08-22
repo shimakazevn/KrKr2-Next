@@ -786,6 +786,7 @@ void TVPExecuteStorage(const ttstr &name, iTJSDispatch2 *context,
 
     ttstr place(TVPSearchPlacedPath(name));
     ttstr shortname(TVPExtractStorageName(place));
+    TVPAddLog(TJS_W("(info) TVPExecuteStorage: ") + name + TJS_W(" -> ") + place);
     std::unique_ptr<iTJSTextReadStream> stream{ TVPCreateTextStreamForRead(
         place, modestr) };
     ttstr buffer;

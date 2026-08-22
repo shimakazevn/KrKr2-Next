@@ -205,16 +205,16 @@ namespace TJS {
         }
 
         void AddRef() {
-            if(Object)
+            if(Object && (uintptr_t)Object >= (uintptr_t)0x10000)
                 Object->AddRef();
-            if(ObjThis)
+            if(ObjThis && (uintptr_t)ObjThis >= (uintptr_t)0x10000)
                 ObjThis->AddRef();
         }
 
         void Release() {
-            if(Object)
+            if(Object && (uintptr_t)Object >= (uintptr_t)0x10000)
                 Object->Release();
-            if(ObjThis)
+            if(ObjThis && (uintptr_t)ObjThis >= (uintptr_t)0x10000)
                 ObjThis->Release();
         }
 
@@ -222,7 +222,7 @@ namespace TJS {
                            tjs_uint32 *hint, tTJSVariant *result,
                            tjs_int numparams, tTJSVariant **param,
                            iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->FuncCall(
                 flag, membername, hint, result, numparams, param,
@@ -233,7 +233,7 @@ namespace TJS {
                                 tTJSVariant *result, tjs_int numparams,
                                 tTJSVariant **param,
                                 iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->FuncCallByNum(
                 flag, num, result, numparams, param,
@@ -243,7 +243,7 @@ namespace TJS {
         tjs_error PropGet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, tTJSVariant *result,
                           iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->PropGet(flag, membername, hint, result,
                                    ObjThis ? ObjThis
@@ -253,7 +253,7 @@ namespace TJS {
         tjs_error PropGetByNum(tjs_uint32 flag, tjs_int num,
                                tTJSVariant *result,
                                iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->PropGetByNum(flag, num, result,
                                         ObjThis ? ObjThis
@@ -263,7 +263,7 @@ namespace TJS {
         tjs_error PropSet(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, const tTJSVariant *param,
                           iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->PropSet(flag, membername, hint, param,
                                    ObjThis ? ObjThis
@@ -273,7 +273,7 @@ namespace TJS {
         tjs_error PropSetByNum(tjs_uint32 flag, tjs_int num,
                                const tTJSVariant *param,
                                iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->PropSetByNum(flag, num, param,
                                         ObjThis ? ObjThis
@@ -282,7 +282,7 @@ namespace TJS {
 
         tjs_error GetCount(tjs_int *result, const tjs_char *membername,
                            tjs_uint32 *hint, iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->GetCount(result, membername, hint,
                                     ObjThis ? ObjThis
@@ -291,7 +291,7 @@ namespace TJS {
 
         tjs_error GetCountByNum(tjs_int *result, tjs_int num,
                                 iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->GetCountByNum(
                 result, num, ObjThis ? ObjThis : (objthis ? objthis : Object));
@@ -300,7 +300,7 @@ namespace TJS {
         tjs_error PropSetByVS(tjs_uint32 flag, tTJSVariantString *membername,
                               const tTJSVariant *param,
                               iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->PropSetByVS(flag, membername, param,
                                        ObjThis ? ObjThis
@@ -309,7 +309,7 @@ namespace TJS {
 
         tjs_error EnumMembers(tjs_uint32 flag, tTJSVariantClosure *callback,
                               iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->EnumMembers(flag, callback,
                                        ObjThis ? ObjThis
@@ -318,7 +318,7 @@ namespace TJS {
 
         tjs_error DeleteMember(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->DeleteMember(flag, membername, hint,
                                         ObjThis ? ObjThis
@@ -327,7 +327,7 @@ namespace TJS {
 
         tjs_error DeleteMemberByNum(tjs_uint32 flag, tjs_int num,
                                     iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->DeleteMemberByNum(
                 flag, num, ObjThis ? ObjThis : (objthis ? objthis : Object));
@@ -335,7 +335,7 @@ namespace TJS {
 
         tjs_error Invalidate(tjs_uint32 flag, const tjs_char *membername,
                              tjs_uint32 *hint, iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->Invalidate(flag, membername, hint,
                                       ObjThis ? ObjThis
@@ -344,7 +344,7 @@ namespace TJS {
 
         tjs_error InvalidateByNum(tjs_uint32 flag, tjs_int num,
                                   iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->InvalidateByNum(
                 flag, num, ObjThis ? ObjThis : (objthis ? objthis : Object));
@@ -352,7 +352,7 @@ namespace TJS {
 
         tjs_error IsValid(tjs_uint32 flag, const tjs_char *membername,
                           tjs_uint32 *hint, iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->IsValid(flag, membername, hint,
                                    ObjThis ? ObjThis
@@ -361,7 +361,7 @@ namespace TJS {
 
         tjs_error IsValidByNum(tjs_uint32 flag, tjs_int num,
                                iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->IsValidByNum(
                 flag, num, ObjThis ? ObjThis : (objthis ? objthis : Object));
@@ -371,7 +371,7 @@ namespace TJS {
                             tjs_uint32 *hint, iTJSDispatch2 **result,
                             tjs_int numparams, tTJSVariant **param,
                             iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->CreateNew(
                 flag, membername, hint, result, numparams, param,
@@ -382,7 +382,7 @@ namespace TJS {
                                  iTJSDispatch2 **result, tjs_int numparams,
                                  tTJSVariant **param,
                                  iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->CreateNewByNum(
                 flag, num, result, numparams, param,
@@ -397,7 +397,7 @@ namespace TJS {
         tjs_error IsInstanceOf(tjs_uint32 flag, const tjs_char *membername,
                                tjs_uint32 *hint, const tjs_char *classname,
                                iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->IsInstanceOf(flag, membername, hint, classname,
                                         ObjThis ? ObjThis
@@ -407,7 +407,7 @@ namespace TJS {
         tjs_error IsInstanceOf(tjs_uint32 flag, tjs_int num,
                                tjs_char *classname,
                                iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->IsInstanceOfByNum(
                 flag, num, classname,
@@ -418,7 +418,7 @@ namespace TJS {
                             tjs_uint32 *hint, tTJSVariant *result,
                             const tTJSVariant *param,
                             iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->Operation(flag, membername, hint, result, param,
                                      ObjThis ? ObjThis
@@ -428,7 +428,7 @@ namespace TJS {
         tjs_error OperationByNum(tjs_uint32 flag, tjs_int num,
                                  tTJSVariant *result, const tTJSVariant *param,
                                  iTJSDispatch2 *objthis) const {
-            if(!Object)
+            if(!Object || (uintptr_t)Object < (uintptr_t)0x10000)
                 TJSThrowNullAccess();
             return Object->OperationByNum(
                 flag, num, result, param,
@@ -479,9 +479,9 @@ namespace TJS {
         //------------------------------------------------
     private:
         void AddRefObject() {
-            if(Object.Object)
+            if(Object.Object && (uintptr_t)Object.Object >= (uintptr_t)0x10000)
                 Object.Object->AddRef();
-            if(Object.ObjThis)
+            if(Object.ObjThis && (uintptr_t)Object.ObjThis >= (uintptr_t)0x10000)
                 Object.ObjThis->AddRef();
             // does not addref the string or octet
         }
@@ -489,18 +489,20 @@ namespace TJS {
         void ReleaseObject() {
             iTJSDispatch2 *object = Object.Object;
             iTJSDispatch2 *objthis = Object.ObjThis;
-            if(object)
-                Object.Object = nullptr, object->Release();
-            if(objthis)
-                Object.ObjThis = nullptr, objthis->Release();
+            Object.Object = nullptr;
+            Object.ObjThis = nullptr;
+            if(object && (uintptr_t)object >= (uintptr_t)0x10000)
+                object->Release();
+            if(objthis && (uintptr_t)objthis >= (uintptr_t)0x10000)
+                objthis->Release();
             // does not release the string nor octet
         }
 
         void AddRefContent() {
             if(vt == tvtObject) {
-                if(Object.Object)
+                if(Object.Object && (uintptr_t)Object.Object >= (uintptr_t)0x10000)
                     Object.Object->AddRef();
-                if(Object.ObjThis)
+                if(Object.ObjThis && (uintptr_t)Object.ObjThis >= (uintptr_t)0x10000)
                     Object.ObjThis->AddRef();
             } else {
                 if(vt == tvtString) {
